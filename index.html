@@ -262,7 +262,7 @@
         </div>
     </div>
 
-    <div class="card" style="margin-bottom: 60px; padding: 16px;">
+    <div class="card" style="margin-bottom: 40px; padding: 16px;">
         <h3>🔍 <span>보유 종목 현황</span></h3>
         <table id="stock-table">
             <thead>
@@ -297,13 +297,15 @@
     let assetChartInstance = null;
     let stockChartInstance = null;
 
+    // 미국 주식 원화 계산을 위한 고정 환율 세팅
     const USD_KRW_EXCHANGE_RATE = 1380;
 
     Chart.defaults.font.family = "'Pretendard', sans-serif";
     Chart.defaults.color = "#9ea4ae";
 
     window.onload = function() {
-        if(db.length === 0) {
+        // [수정] 브라우저 데이터가 비어있거나 구버전일 때 오늘 자 스냅샷 데이터 기반으로 자동 초기화되도록 변경
+        if(db.length === 0 || db[db.length - 1].date !== "2026-05-18") {
             db = [
                 {
                     "date": "2026-05-17",
@@ -316,11 +318,20 @@
                 },
                 {
                     "date": "2026-05-18",
-                    "total_asset": 23166050,
+                    "total_asset": 23499458,
                     "principal": 15429928,
-                    "total_profit": 7736122,
-                    "total_profit_rate": 50.1,
-                    "market_watchlist": { "코스피": 2650.50, "나스닥": 16350.20, "구글": 175.40, "엔비디아": 920.30, "시에나": 48.50, "삼성전자": 78500, "현대차": 245000, "SK하이닉스": 182000 },
+                    "total_profit": 8069530,
+                    "total_profit_rate": 52.2,
+                    "market_watchlist": { 
+                        "코스피": 2650.50, 
+                        "나스닥": 16350.20, 
+                        "구글": 175.40, 
+                        "엔비디아": 920.30, 
+                        "시에나": 48.50, 
+                        "삼성전자": 78500, 
+                        "현대차": 245000, 
+                        "SK하이닉스": 182000 
+                    },
                     "stocks": [
                         { "name": "시에나", "count": 10, "current_price": 835973, "profit_rate": 125.3 },
                         { "name": "INTW", "count": 15, "current_price": 413794, "profit_rate": 481.1 },
@@ -377,7 +388,7 @@
             
             document.getElementById('json-paste-box').value = "";
             updateDashboard();
-            alert(`${newData.date} 데이터 반영 및 일지 템플릿 갱신 완료!`);
+            alert(`${newData.date} 데이터가 실시간으로 성공적으로 반영되었습니다.`);
         } catch(e) {
             alert("JSON 구문오류입니다.");
         }
@@ -410,7 +421,8 @@
                 const isIndex = key === "코스피" || key === "나스닥";
                 const isUsStock = key === "구글" || key === "엔비디아" || key === "시에나";
                 
-                if (isUsStock && currentPrice < 5000) { 
+                // 만약 구글/엔비디아가 달러 단위($500 미만)로 들어왔을 때만 원화로 환산 연산 실행
+                if (isUsStock && currentPrice < 2000) { 
                     currentPrice = Math.round(currentPrice * USD_KRW_EXCHANGE_RATE);
                 }
 
