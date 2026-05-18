@@ -1,1569 +1,287 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📚 나의 힐링 독서 기록장</title>
-
-  <!-- Google Fonts: 감성적인 한글+영문 폰트 조합 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet" />
-
-  <style>
-    /* ============================================================
-       CSS 변수 & 전역 리셋
-    ============================================================ */
-    :root {
-      --forest:   #2d6a4f;   /* 딥 포레스트 그린 */
-      --sage:     #52b788;   /* 세이지 그린 */
-      --mint:     #95d5b2;   /* 민트 */
-      --pale:     #d8f3dc;   /* 연한 민트 */
-      --cream:    #f8f9f0;   /* 크림 화이트 */
-      --paper:    #fffef7;   /* 종이 화이트 */
-      --text:     #2d3a2e;   /* 메인 텍스트 */
-      --muted:    #6b8c6e;   /* 뮤트 텍스트 */
-      --light:    #a8c5aa;   /* 라이트 텍스트 */
-      --gold:     #e9a94a;   /* 별점 골드 */
-      --danger:   #c0574a;   /* 삭제 레드 */
-      --shadow-sm: 0 2px 8px rgba(45,106,79,0.08);
-      --shadow-md: 0 6px 20px rgba(45,106,79,0.13);
-      --shadow-lg: 0 12px 40px rgba(45,106,79,0.18);
-      --radius:   16px;
-      --radius-sm: 10px;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background-color: var(--cream);
-      color: var(--text);
-      min-height: 100vh;
-      /* 미묘한 잎사귀 패턴 배경 */
-      background-image:
-        radial-gradient(ellipse at 10% 20%, rgba(149,213,178,0.18) 0%, transparent 50%),
-        radial-gradient(ellipse at 90% 80%, rgba(82,183,136,0.12) 0%, transparent 50%);
-    }
-
-    /* ============================================================
-       헤더
-    ============================================================ */
-    header {
-      background: linear-gradient(135deg, var(--forest) 0%, #1b4332 60%, #081c15 100%);
-      color: #fff;
-      padding: 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-    }
-
-    .header-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 18px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-icon {
-      font-size: 28px;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-4px); }
-    }
-
-    .logo-title {
-      font-family: 'Gowun Batang', serif;
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      line-height: 1.2;
-    }
-
-    .logo-sub {
-      font-size: 0.68rem;
-      color: var(--mint);
-      letter-spacing: 0.8px;
-      font-weight: 300;
-      text-transform: uppercase;
-    }
-
-    .header-stats {
-      display: flex;
-      gap: 20px;
-    }
-
-    .stat-chip {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 50px;
-      padding: 6px 14px;
-      font-size: 0.78rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      backdrop-filter: blur(8px);
-    }
-
-    .stat-chip .num {
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--mint);
-    }
-
-    /* ============================================================
-       메인 레이아웃
-    ============================================================ */
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 28px 20px 60px;
-    }
-
-    /* ============================================================
-       대시보드 카드 그리드
-    ============================================================ */
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .dash-card {
-      background: var(--paper);
-      border-radius: var(--radius);
-      padding: 22px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(82,183,136,0.15);
-      transition: transform 0.2s, box-shadow 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .dash-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--sage), var(--mint));
-    }
-
-    .dash-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .dash-card .icon {
-      font-size: 2rem;
-      margin-bottom: 8px;
-    }
-
-    .dash-card .label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .dash-card .value {
-      font-family: 'Gowun Batang', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--forest);
-      line-height: 1;
-    }
-
-    .dash-card .value-unit {
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-left: 4px;
-    }
-
-    /* ============================================================
-       월별 목표 & 성장 게이지
-    ============================================================ */
-    .goal-card {
-      background: var(--paper);
-      border-radius: var(--radius);
-      padding: 24px 28px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(82,183,136,0.15);
-      margin-bottom: 32px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .goal-card::after {
-      content: '🌿';
-      position: absolute;
-      right: 20px;
-      bottom: 10px;
-      font-size: 3rem;
-      opacity: 0.12;
-      transform: rotate(-15deg);
-    }
-
-    .goal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .goal-title {
-      font-family: 'Gowun Batang', serif;
-      font-size: 1.05rem;
-      color: var(--forest);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .goal-input-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .goal-input-wrap label {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .goal-num-input {
-      width: 60px;
-      padding: 6px 10px;
-      border: 1.5px solid var(--pale);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      color: var(--forest);
-      text-align: center;
-      background: var(--cream);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .goal-num-input:focus { border-color: var(--sage); }
-
-    /* 게이지 바 */
-    .growth-bar-wrap {
-      position: relative;
-    }
-
-    .growth-stages {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .growth-stage {
-      font-size: 1.2rem;
-      opacity: 0.3;
-      transition: opacity 0.5s, transform 0.5s;
-    }
-
-    .growth-stage.active {
-      opacity: 1;
-      transform: scale(1.3);
-      filter: drop-shadow(0 2px 4px rgba(45,106,79,0.3));
-    }
-
-    .growth-bar-bg {
-      height: 18px;
-      background: var(--pale);
-      border-radius: 50px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .growth-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--sage), var(--mint), #b7e4c7);
-      border-radius: 50px;
-      transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-      position: relative;
-      min-width: 0;
-    }
-
-    .growth-bar-fill::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0%   { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    .growth-pct {
-      text-align: right;
-      margin-top: 6px;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .growth-pct strong {
-      color: var(--forest);
-      font-size: 1rem;
-    }
-
-    /* ============================================================
-       탭 네비게이션
-    ============================================================ */
-    .tab-nav {
-      display: flex;
-      gap: 0;
-      background: var(--paper);
-      border-radius: var(--radius);
-      padding: 6px;
-      box-shadow: var(--shadow-sm);
-      margin-bottom: 24px;
-      border: 1px solid rgba(82,183,136,0.15);
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 12px 20px;
-      border: none;
-      background: transparent;
-      border-radius: var(--radius-sm);
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.25s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .tab-btn:hover { color: var(--forest); background: var(--pale); }
-
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--forest), var(--sage));
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(45,106,79,0.3);
-    }
-
-    .tab-badge {
-      background: rgba(255,255,255,0.25);
-      border-radius: 50px;
-      padding: 1px 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-    }
-
-    .tab-btn:not(.active) .tab-badge {
-      background: var(--pale);
-      color: var(--forest);
-    }
-
-    /* ============================================================
-       패널
-    ============================================================ */
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    /* ============================================================
-       도서 등록 폼
-    ============================================================ */
-    .form-card {
-      background: var(--paper);
-      border-radius: var(--radius);
-      padding: 28px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(82,183,136,0.15);
-      margin-bottom: 28px;
-    }
-
-    .form-section-title {
-      font-family: 'Gowun Batang', serif;
-      font-size: 1.1rem;
-      color: var(--forest);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group.full { grid-column: 1 / -1; }
-
-    .form-group label {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: 0.3px;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      padding: 11px 14px;
-      border: 1.5px solid rgba(82,183,136,0.25);
-      border-radius: var(--radius-sm);
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 0.88rem;
-      color: var(--text);
-      background: var(--cream);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      border-color: var(--sage);
-      box-shadow: 0 0 0 3px rgba(82,183,136,0.12);
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-      line-height: 1.7;
-    }
-
-    /* 이미지 업로드 */
-    .file-upload-area {
-      border: 2px dashed rgba(82,183,136,0.35);
-      border-radius: var(--radius-sm);
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: var(--cream);
-      position: relative;
-    }
-
-    .file-upload-area:hover { border-color: var(--sage); background: var(--pale); }
-    .file-upload-area input { display: none; }
-
-    .file-upload-icon { font-size: 2rem; margin-bottom: 6px; }
-    .file-upload-text { font-size: 0.8rem; color: var(--muted); }
-    .file-preview {
-      max-width: 80px;
-      max-height: 110px;
-      border-radius: 6px;
-      object-fit: cover;
-      margin: 8px auto 0;
-      display: block;
-      box-shadow: var(--shadow-sm);
-    }
-
-    /* AI 요약 영역 */
-    .ai-wrap {
-      position: relative;
-    }
-
-    .ai-btn {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      padding: 6px 14px;
-      background: linear-gradient(135deg, var(--forest), var(--sage));
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: opacity 0.2s, transform 0.2s;
-      box-shadow: 0 2px 8px rgba(45,106,79,0.3);
-    }
-
-    .ai-btn:hover { opacity: 0.85; transform: scale(1.03); }
-
-    .ai-btn .sparkle { font-size: 0.9rem; }
-
-    .ai-result {
-      display: none;
-      margin-top: 10px;
-      background: linear-gradient(135deg, rgba(216,243,220,0.6), rgba(149,213,178,0.2));
-      border: 1.5px solid var(--pale);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      font-size: 0.85rem;
-      line-height: 1.8;
-      color: var(--forest);
-    }
-
-    .ai-result .ai-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--sage);
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .ai-result ol {
-      padding-left: 18px;
-    }
-
-    .ai-result ol li {
-      margin-bottom: 4px;
-    }
-
-    .ai-result.show { display: block; animation: fadeSlideIn 0.35s ease; }
-
-    @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* 조건부 표시 필드 */
-    .conditional-fields {
-      display: contents;
-    }
-
-    .conditional-fields.hidden > .form-group {
-      display: none;
-    }
-
-    /* 등록 버튼 */
-    .btn-submit {
-      width: 100%;
-      margin-top: 20px;
-      padding: 15px;
-      background: linear-gradient(135deg, var(--forest) 0%, var(--sage) 100%);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-      box-shadow: 0 4px 16px rgba(45,106,79,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-submit:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(45,106,79,0.35);
-    }
-
-    .btn-submit:active { transform: translateY(0); }
-
-    /* ============================================================
-       도서 카드 그리드
-    ============================================================ */
-    .books-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .books-header-title {
-      font-family: 'Gowun Batang', serif;
-      font-size: 1.05rem;
-      color: var(--forest);
-    }
-
-    .search-input {
-      padding: 9px 14px 9px 36px;
-      border: 1.5px solid rgba(82,183,136,0.25);
-      border-radius: 50px;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 0.82rem;
-      color: var(--text);
-      background: var(--paper);
-      outline: none;
-      width: 200px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2352b788' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: 12px center;
-    }
-
-    .search-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(82,183,136,0.12); }
-
-    .books-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    /* 완독 카드 */
-    .book-card {
-      background: var(--paper);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(82,183,136,0.12);
-      transition: transform 0.2s, box-shadow 0.2s;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .book-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .book-cover {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-      display: block;
-      background: linear-gradient(135deg, var(--pale), var(--mint));
-    }
-
-    .book-cover-placeholder {
-      width: 100%;
-      height: 160px;
-      background: linear-gradient(135deg, var(--pale) 0%, rgba(149,213,178,0.4) 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 2.5rem;
-    }
-
-    .book-cover-placeholder span {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    .book-body {
-      padding: 14px 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .book-title {
-      font-family: 'Gowun Batang', serif;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .book-author {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    .book-period {
-      font-size: 0.72rem;
-      color: var(--light);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* 별점 */
-    .star-rating {
-      display: flex;
-      gap: 2px;
-      margin-top: 4px;
-    }
-
-    .star {
-      font-size: 1.1rem;
-      cursor: pointer;
-      color: #ddd;
-      transition: color 0.15s, transform 0.1s;
-      line-height: 1;
-    }
-
-    .star:hover, .star.filled { color: var(--gold); }
-    .star:hover { transform: scale(1.2); }
-
-    /* AI 3줄 평 */
-    .book-summary {
-      font-size: 0.75rem;
-      color: var(--muted);
-      line-height: 1.6;
-      background: rgba(216,243,220,0.4);
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-top: 4px;
-    }
-
-    .book-summary .summary-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: var(--sage);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    /* 삭제 버튼 */
-    .btn-delete {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
-      background: rgba(255,255,255,0.85);
-      border: none;
-      border-radius: 50%;
-      font-size: 0.7rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--danger);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      transition: all 0.2s;
-      opacity: 0;
-      backdrop-filter: blur(4px);
-    }
-
-    .book-card:hover .btn-delete { opacity: 1; }
-    .btn-delete:hover { background: var(--danger); color: #fff; transform: scale(1.1); }
-
-    /* ============================================================
-       위시리스트 스타일
-    ============================================================ */
-    .wish-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .wish-item {
-      background: var(--paper);
-      border-radius: var(--radius-sm);
-      padding: 16px 20px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(82,183,136,0.12);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      transition: transform 0.2s, box-shadow 0.2s;
-      position: relative;
-    }
-
-    .wish-item:hover {
-      transform: translateX(4px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .wish-bullet {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--pale), var(--mint));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    .wish-info { flex: 1; }
-
-    .wish-title {
-      font-family: 'Gowun Batang', serif;
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-
-    .wish-author {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .wish-tag {
-      font-size: 0.68rem;
-      background: var(--pale);
-      color: var(--forest);
-      border-radius: 50px;
-      padding: 3px 10px;
-      font-weight: 500;
-    }
-
-    .wish-item .btn-delete {
-      position: static;
-      opacity: 1;
-      background: transparent;
-      box-shadow: none;
-      color: var(--light);
-      width: auto;
-      height: auto;
-      border-radius: 4px;
-      padding: 4px;
-    }
-
-    .wish-item:hover .btn-delete { color: var(--danger); }
-
-    /* ============================================================
-       빈 상태
-    ============================================================ */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-    }
-
-    .empty-state .empty-icon { font-size: 4rem; margin-bottom: 12px; opacity: 0.5; }
-    .empty-state p { font-size: 0.9rem; line-height: 1.7; }
-
-    /* ============================================================
-       토스트 알림
-    ============================================================ */
-    .toast-container {
-      position: fixed;
-      bottom: 28px;
-      right: 24px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: none;
-    }
-
-    .toast {
-      background: var(--forest);
-      color: #fff;
-      padding: 13px 20px;
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      animation: toastIn 0.35s ease, toastOut 0.35s ease 2.5s forwards;
-      max-width: 300px;
-    }
-
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateY(20px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes toastOut {
-      to { opacity: 0; transform: translateY(10px) scale(0.95); }
-    }
-
-    /* ============================================================
-       반응형
-    ============================================================ */
-    @media (max-width: 680px) {
-      .header-stats { display: none; }
-      .logo-title { font-size: 1.1rem; }
-      .form-grid { grid-template-columns: 1fr; }
-      .form-group.full { grid-column: 1; }
-      .books-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-      .book-cover, .book-cover-placeholder { height: 130px; }
-      .tab-btn { font-size: 0.78rem; padding: 10px 10px; }
-      .search-input { width: 150px; }
-      main { padding: 20px 14px 50px; }
-    }
-
-    @media (max-width: 400px) {
-      .books-grid { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- ============================================================
-       헤더
-  ============================================================ -->
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <span class="logo-icon">📚</span>
-        <div>
-          <div class="logo-title">나의 힐링 독서 기록장</div>
-          <div class="logo-sub">My Healing Book Tracker</div>
-        </div>
-      </div>
-      <div class="header-stats">
-        <div class="stat-chip">📖 완독 <span class="num" id="hdr-read">0</span>권</div>
-        <div class="stat-chip">🌱 위시리스트 <span class="num" id="hdr-wish">0</span>권</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- ============================================================
-       메인
-  ============================================================ -->
-  <main>
-
-    <!-- 대시보드 카드 -->
-    <div class="dashboard">
-      <div class="dash-card">
-        <div class="icon">📗</div>
-        <div class="label">총 완독</div>
-        <div class="value" id="stat-total">0<span class="value-unit">권</span></div>
-      </div>
-      <div class="dash-card">
-        <div class="icon">📅</div>
-        <div class="label">이번 달 완독</div>
-        <div class="value" id="stat-month">0<span class="value-unit">권</span></div>
-      </div>
-      <div class="dash-card">
-        <div class="icon">⭐</div>
-        <div class="label">평균 별점</div>
-        <div class="value" id="stat-avg">-<span class="value-unit"></span></div>
-      </div>
-      <div class="dash-card">
-        <div class="icon">🌿</div>
-        <div class="label">위시리스트</div>
-        <div class="value" id="stat-wish">0<span class="value-unit">권</span></div>
-      </div>
-    </div>
-
-    <!-- 월간 목표 게이지 -->
-    <div class="goal-card">
-      <div class="goal-header">
-        <div class="goal-title">🌱 이번 달 독서 성장 게이지</div>
-        <div class="goal-input-wrap">
-          <label for="goal-input">월 목표</label>
-          <input type="number" id="goal-input" class="goal-num-input" min="1" max="99" value="4" />
-          <label>권</label>
-        </div>
-      </div>
-      <!-- 성장 단계 이모지: 씨앗 → 새싹 → 작은 나무 → 나무 → 큰 나무 -->
-      <div class="growth-stages">
-        <span class="growth-stage" data-stage="0">🌰</span>
-        <span class="growth-stage" data-stage="1">🌱</span>
-        <span class="growth-stage" data-stage="2">🌿</span>
-        <span class="growth-stage" data-stage="3">🌳</span>
-        <span class="growth-stage" data-stage="4">🌲</span>
-      </div>
-      <div class="growth-bar-wrap">
-        <div class="growth-bar-bg">
-          <div class="growth-bar-fill" id="growth-bar" style="width:0%"></div>
-        </div>
-      </div>
-      <div class="growth-pct" id="growth-pct">목표: 4권 &nbsp;|&nbsp; <strong>0%</strong> 달성</div>
-    </div>
-
-    <!-- 탭 네비게이션 -->
-    <div class="tab-nav" role="tablist">
-      <button class="tab-btn active" role="tab" onclick="switchTab('read')" id="tab-read">
-        📗 완독한 책 <span class="tab-badge" id="badge-read">0</span>
-      </button>
-      <button class="tab-btn" role="tab" onclick="switchTab('wish')" id="tab-wish">
-        💚 읽고 싶은 책 <span class="tab-badge" id="badge-wish">0</span>
-      </button>
-      <button class="tab-btn" role="tab" onclick="switchTab('add')" id="tab-add">
-        ✏️ 책 등록하기
-      </button>
-    </div>
-
-    <!-- 패널: 완독 목록 -->
-    <div class="panel active" id="panel-read">
-      <div class="books-header">
-        <div class="books-header-title">📗 완독한 책 목록</div>
-        <input type="text" class="search-input" id="search-read" placeholder="제목 / 저자 검색" oninput="renderReadBooks()" />
-      </div>
-      <div class="books-grid" id="read-grid"></div>
-      <div class="empty-state" id="empty-read">
-        <div class="empty-icon">📭</div>
-        <p>아직 완독한 책이 없어요.<br/>첫 번째 책을 기록해 볼까요? 🌿</p>
-      </div>
-    </div>
-
-    <!-- 패널: 위시리스트 -->
-    <div class="panel" id="panel-wish">
-      <div class="books-header">
-        <div class="books-header-title">💚 읽고 싶은 책 목록</div>
-        <input type="text" class="search-input" id="search-wish" placeholder="제목 / 저자 검색" oninput="renderWishBooks()" />
-      </div>
-      <div class="wish-list" id="wish-list"></div>
-      <div class="empty-state" id="empty-wish">
-        <div class="empty-icon">🌱</div>
-        <p>위시리스트가 비어 있어요.<br/>읽고 싶은 책을 추가해 보세요!</p>
-      </div>
-    </div>
-
-    <!-- 패널: 등록 폼 -->
-    <div class="panel" id="panel-add">
-      <div class="form-card">
-        <div class="form-section-title">✏️ 새 책 등록하기</div>
-
-        <div class="form-grid">
-          <!-- 분류 선택 -->
-          <div class="form-group full">
-            <label for="f-type">📌 분류</label>
-            <select id="f-type" onchange="onTypeChange()">
-              <option value="read">📗 완독한 책</option>
-              <option value="wish">💚 읽고 싶은 책 (위시리스트)</option>
-            </select>
-          </div>
-
-          <!-- 기본 항목 (항상 표시) -->
-          <div class="form-group">
-            <label for="f-title">📖 책 제목 *</label>
-            <input type="text" id="f-title" placeholder="책 제목을 입력하세요" />
-          </div>
-
-          <div class="form-group">
-            <label for="f-author">✍️ 저자</label>
-            <input type="text" id="f-author" placeholder="저자명" />
-          </div>
-
-          <!-- 완독 전용 필드 (조건부) -->
-          <div class="conditional-fields" id="conditional-fields">
-            <div class="form-group">
-              <label for="f-start">📅 읽기 시작일</label>
-              <input type="date" id="f-start" />
-            </div>
-
-            <div class="form-group">
-              <label for="f-end">🏁 완독일</label>
-              <input type="date" id="f-end" />
-            </div>
-
-            <div class="form-group full">
-              <label>🖼️ 책 표지 이미지</label>
-              <label class="file-upload-area" for="f-cover">
-                <div class="file-upload-icon">📷</div>
-                <div class="file-upload-text">클릭하여 이미지 업로드<br/>(JPG, PNG 등)</div>
-                <input type="file" id="f-cover" accept="image/*" onchange="previewCover(this)" />
-                <img id="f-cover-preview" class="file-preview" style="display:none" />
-              </label>
-            </div>
-
-            <div class="form-group full">
-              <label for="f-content">💬 내용 / 느낀 점 (AI 3줄 요약 가능)</label>
-              <div class="ai-wrap">
-                <textarea id="f-content" placeholder="책 내용이나 읽고 나서 느낀 점을 자유롭게 적어보세요. 길게 쓰면 AI가 3줄로 요약해 드려요 ✨" style="padding-bottom:44px"></textarea>
-                <button class="ai-btn" type="button" onclick="aiSummarize()">
-                  <span class="sparkle">✨</span> AI 3줄 요약
-                </button>
-              </div>
-              <div class="ai-result" id="ai-result">
-                <div class="ai-label">✨ AI 3줄 요약</div>
-                <ol id="ai-lines"></ol>
-              </div>
-            </div>
-          </div><!-- /conditional-fields -->
-
-        </div><!-- /form-grid -->
-
-        <button class="btn-submit" type="button" onclick="submitBook()">
-          <span>🌿</span> 독서 기록 저장하기
-        </button>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- 토스트 컨테이너 -->
-  <div class="toast-container" id="toast-container"></div>
-
-  <script>
-  /* ============================================================
-     나의 힐링 독서 기록장 - 메인 스크립트
-     LocalStorage 키: booktracker_books
-  ============================================================ */
-
-  // ─────────────────────────────────────────────
-  // 0. 초기 데이터 로드
-  // ─────────────────────────────────────────────
-  /** @type {Array<Object>} 전체 도서 배열 */
-  let books = [];
-
-  function loadBooks() {
-    try {
-      const raw = localStorage.getItem('booktracker_books');
-      books = raw ? JSON.parse(raw) : [];
-    } catch(e) {
-      books = [];
-    }
-  }
-
-  function saveBooks() {
-    localStorage.setItem('booktracker_books', JSON.stringify(books));
-  }
-
-  /** 월간 목표 수 */
-  function loadGoal() {
-    return parseInt(localStorage.getItem('booktracker_goal') || '4', 10);
-  }
-
-  function saveGoal(v) {
-    localStorage.setItem('booktracker_goal', String(v));
-  }
-
-  // ─────────────────────────────────────────────
-  // 1. 탭 전환
-  // ─────────────────────────────────────────────
-  function switchTab(name) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-' + name).classList.add('active');
-    document.getElementById('tab-' + name).classList.add('active');
-  }
-
-  // ─────────────────────────────────────────────
-  // 2. 분류 변경 → 조건부 필드 토글
-  // ─────────────────────────────────────────────
-  function onTypeChange() {
-    const type = document.getElementById('f-type').value;
-    const cf   = document.getElementById('conditional-fields');
-    if (type === 'wish') {
-      cf.classList.add('hidden');
-    } else {
-      cf.classList.remove('hidden');
-    }
-    // AI 요약 결과도 리셋
-    document.getElementById('ai-result').classList.remove('show');
-  }
-
-  // ─────────────────────────────────────────────
-  // 3. 표지 이미지 미리보기 (Base64 인코딩)
-  // ─────────────────────────────────────────────
-  let coverBase64 = null;
-
-  function previewCover(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      coverBase64 = e.target.result; // Base64 데이터 저장
-      const preview = document.getElementById('f-cover-preview');
-      preview.src = coverBase64;
-      preview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // ─────────────────────────────────────────────
-  // 4. 모의 AI 3줄 요약 (Mock AI Summarizer)
-  //    백엔드 없이 순수 JS로 핵심 문장 추출
-  // ─────────────────────────────────────────────
-  function aiSummarize() {
-    const text = document.getElementById('f-content').value.trim();
-    if (!text || text.length < 20) {
-      showToast('⚠️ 내용을 조금 더 길게 적어주세요!');
-      return;
-    }
-
-    /**
-     * 핵심 문장 추출 전략:
-     * 1. 문장 단위로 분리
-     * 2. 키워드(감정·평가·핵심 연결어) 점수 부여
-     * 3. 위치 가중치(처음·중간·끝 문장 중요)
-     * 4. 상위 3문장 추출 → 원문 순서 정렬
-     * 5. 문장이 3개 미만이면 텍스트 자체를 단락 분리 후 압축
-     */
-
-    // 감정·평가·핵심 키워드 가중치 목록
-    const KEYWORD_WEIGHTS = [
-      // 긍정 평가
-      { pattern: /감동|인상|추천|최고|명작|훌륭|아름|소중|깨달|배움|교훈|울림|감사/, score: 3 },
-      // 핵심 서술
-      { pattern: /이 책|책이|저자|작가|이야기|내용|주제|메시지|핵심|중요|결국|가장/, score: 2 },
-      // 결론·요약 연결어
-      { pattern: /따라서|결론적으로|정리하자면|한마디로|결국|총평|마지막으로|무엇보다/, score: 4 },
-      // 감상 표현
-      { pattern: /느꼈|생각했|인상적|기억에 남|흥미로|재미있|지루|아쉬|놀라/, score: 2 },
-    ];
-
-    // 문장 분리 (마침표·느낌표·물음표·줄바꿈 기준)
-    let sentences = text
-      .split(/(?<=[.!?。\n])\s+|[\n]+/)
-      .map(s => s.trim())
-      .filter(s => s.length > 8); // 너무 짧은 파편 제거
-
-    // 문장이 3개 미만이면 단락/문자 단위 압축 처리
-    if (sentences.length < 3) {
-      sentences = fallbackSplit(text);
-    }
-
-    // 각 문장에 점수 부여
-    const scored = sentences.map((s, idx) => {
-      let score = 0;
-      KEYWORD_WEIGHTS.forEach(kw => { if (kw.pattern.test(s)) score += kw.score; });
-      // 위치 가중치: 첫 문장(+3), 끝 문장(+2), 중간 문장(0)
-      if (idx === 0) score += 3;
-      if (idx === sentences.length - 1) score += 2;
-      // 문장 길이 가중치: 너무 짧거나 긴 문장 감점
-      if (s.length < 15) score -= 1;
-      if (s.length > 120) score -= 1;
-      return { s, score, idx };
-    });
-
-    // 상위 3개 선택 후 원문 순서 정렬
-    const top3 = scored
-      .slice() // 복사
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
-      .sort((a, b) => a.idx - b.idx);
-
-    // 각 줄 정제 (길면 자름)
-    const lines = top3.map(item => {
-      let line = item.s.replace(/^\s*[-·•▶]\s*/, '').trim();
-      if (line.length > 80) line = line.slice(0, 78) + '…';
-      return line;
-    });
-
-    // 결과 표시
-    const ol = document.getElementById('ai-lines');
-    ol.innerHTML = lines.map(l => `<li>${l}</li>`).join('');
-    document.getElementById('ai-result').classList.add('show');
-    showToast('✨ AI 3줄 요약이 완성됐어요!');
-  }
-
-  /**
-   * 문장 분리가 부족할 때 폴백: 텍스트를 균등 3분할하여 각 파트 첫 절 추출
-   */
-  function fallbackSplit(text) {
-    const chunk = Math.ceil(text.length / 3);
-    const parts = [
-      text.slice(0, chunk),
-      text.slice(chunk, chunk * 2),
-      text.slice(chunk * 2),
-    ].map(p => p.trim().slice(0, 80) + (p.length > 80 ? '…' : ''));
-    return parts.filter(Boolean);
-  }
-
-  // ─────────────────────────────────────────────
-  // 5. 도서 등록 폼 제출
-  // ─────────────────────────────────────────────
-  function submitBook() {
-    const type   = document.getElementById('f-type').value;
-    const title  = document.getElementById('f-title').value.trim();
-    const author = document.getElementById('f-author').value.trim();
-
-    if (!title) { showToast('⚠️ 책 제목을 입력해 주세요!'); return; }
-
-    const book = {
-      id:     Date.now(),
-      type,          // 'read' | 'wish'
-      title,
-      author,
-    };
-
-    if (type === 'read') {
-      book.startDate = document.getElementById('f-start').value;
-      book.endDate   = document.getElementById('f-end').value;
-      book.cover     = coverBase64 || null;
-      // AI 요약 결과 저장 (있으면)
-      const aiEl = document.getElementById('ai-result');
-      if (aiEl.classList.contains('show')) {
-        book.summary = Array.from(document.querySelectorAll('#ai-lines li')).map(li => li.textContent);
-      }
-      book.rating    = 0; // 초기 별점
-    }
-
-    books.unshift(book); // 최신 순 앞에 추가
-    saveBooks();
-    updateAll();
-    resetForm();
-    showToast(`🌿 "${title}" 등록 완료!`);
-
-    // 등록 후 해당 탭으로 이동
-    switchTab(type === 'read' ? 'read' : 'wish');
-  }
-
-  /** 폼 초기화 */
-  function resetForm() {
-    document.getElementById('f-title').value  = '';
-    document.getElementById('f-author').value = '';
-    document.getElementById('f-start').value  = '';
-    document.getElementById('f-end').value    = '';
-    document.getElementById('f-content').value = '';
-    document.getElementById('f-cover').value   = '';
-    document.getElementById('f-cover-preview').style.display = 'none';
-    document.getElementById('f-type').value   = 'read';
-    document.getElementById('ai-result').classList.remove('show');
-    coverBase64 = null;
-    onTypeChange();
-  }
-
-  // ─────────────────────────────────────────────
-  // 6. 별점 업데이트
-  // ─────────────────────────────────────────────
-  function setRating(id, rating) {
-    const book = books.find(b => b.id === id);
-    if (!book) return;
-    book.rating = rating;
-    saveBooks();
-    updateStats();
-    renderReadBooks(); // 카드 별점 UI 갱신
-  }
-
-  // ─────────────────────────────────────────────
-  // 7. 도서 삭제
-  // ─────────────────────────────────────────────
-  function deleteBook(id) {
-    const book = books.find(b => b.id === id);
-    if (!book) return;
-    if (!confirm(`"${book.title}"을(를) 삭제할까요?`)) return;
-    books = books.filter(b => b.id !== id);
-    saveBooks();
-    updateAll();
-    showToast('🗑️ 도서가 삭제되었습니다.');
-  }
-
-  // ─────────────────────────────────────────────
-  // 8. 렌더링: 완독 목록
-  // ─────────────────────────────────────────────
-  function renderReadBooks() {
-    const query   = document.getElementById('search-read').value.toLowerCase();
-    const readBooks = books.filter(b => b.type === 'read' &&
-      (b.title.toLowerCase().includes(query) || (b.author || '').toLowerCase().includes(query))
-    );
-
-    const grid  = document.getElementById('read-grid');
-    const empty = document.getElementById('empty-read');
-
-    if (readBooks.length === 0) {
-      grid.innerHTML  = '';
-      empty.style.display = 'block';
-      return;
-    }
-    empty.style.display = 'none';
-
-    grid.innerHTML = readBooks.map(book => `
-      <div class="book-card" id="card-${book.id}">
-        <button class="btn-delete" onclick="deleteBook(${book.id})" title="삭제">✕</button>
-
-        ${book.cover
-          ? `<img class="book-cover" src="${book.cover}" alt="${escHtml(book.title)}" />`
-          : `<div class="book-cover-placeholder">📖<span>표지 없음</span></div>`
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --text-main: #e1e1e6;
+            --text-sub: #a8a8b3;
+            --chart-grid: #29292e;
+            --accent-up: #ed374e;
+            --accent-down: #3886d7;
+            --border-color: #292930;
         }
 
-        <div class="book-body">
-          <div class="book-title">${escHtml(book.title)}</div>
-          <div class="book-author">${escHtml(book.author || '저자 미상')}</div>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
 
-          ${(book.startDate || book.endDate) ? `
-          <div class="book-period">
-            📅 ${book.startDate || '?'} ~ ${book.endDate || '?'}
-          </div>` : ''}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-          <!-- 별점 -->
-          <div class="star-rating">
-            ${[1,2,3,4,5].map(n => `
-              <span class="star ${book.rating >= n ? 'filled' : ''}"
-                    onclick="setRating(${book.id}, ${n})"
-                    onmouseover="hoverStars(${book.id}, ${n})"
-                    onmouseout="unhoverStars(${book.id}, ${book.rating})"
-                    title="${n}점">★</span>
-            `).join('')}
-          </div>
+        header {
+            margin-bottom: 30px;
+        }
 
-          <!-- AI 3줄 요약 -->
-          ${book.summary && book.summary.length > 0 ? `
-          <div class="book-summary">
-            <div class="summary-label">✨ AI 3줄 요약</div>
-            ${book.summary.map((l,i) => `<div>${i+1}. ${escHtml(l)}</div>`).join('')}
-          </div>` : ''}
+        h1 { font-size: 24px; margin-bottom: 5px; }
+
+        /* 대시보드 레이아웃 */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .asset-value { font-size: 32px; font-weight: bold; margin: 10px 0; }
+        .profit-positive { color: var(--accent-up); font-weight: 500; }
+        .profit-negative { color: var(--accent-down); font-weight: 500; }
+
+        /* 텍스트 영역 스타일 */
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #121214;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+            margin-top: 10px;
+        }
+
+        /* 테이블 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th { color: var(--text-sub); font-weight: 500; }
+
+        /* 매수매도 의견 인풋 */
+        .opinion-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--text-sub);
+            color: var(--text-main);
+            width: 100%;
+            padding: 4px 0;
+        }
+        .opinion-input:focus { outline: none; border-bottom: 1px solid var(--accent-up); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>나의 자산 및 주식 관점 일지</h1>
+        <p style="color: var(--text-sub); margin: 0;">매일의 포트폴리오 상태와 매매 전략을 기록합니다.</p>
+    </header>
+
+    <div class="grid-layout">
+        <div class="card">
+            <h3>📈 현재 총 자산 현황</h3>
+            <div class="asset-value" id="txt-total-asset">0원</div>
+            <div>원금: <span id="txt-principal" style="color: var(--text-sub);">0원</span></div>
+            <div style="margin-top: 5px;">
+                총 수익: <span id="txt-total-profit">0원</span> 
+                (<span id="txt-profit-rate">0%</span>)
+            </div>
         </div>
-      </div>
-    `).join('');
-  }
 
-  /** 별점 호버 효과 */
-  function hoverStars(id, n) {
-    const card = document.getElementById('card-' + id);
-    if (!card) return;
-    card.querySelectorAll('.star').forEach((s, i) => {
-      s.classList.toggle('filled', i < n);
+        <div class="card">
+            <h3>📊 총자산 추이 비교</h3>
+            <canvas id="assetHistoryChart" style="max-height: 180px;"></canvas>
+        </div>
+    </div>
+
+    <div class="grid-layout">
+        <div class="card">
+            <h3>📝 오늘의 시장 관점 기록</h3>
+            <p style="font-size:12px; color:var(--text-sub); margin:0;">나중에 복기할 때 눈이 편하도록 정리하는 시장 노트</p>
+            <textarea id="market-view" placeholder="오늘 시장에 대한 생각, 거시 경제 이슈 등을 자유롭게 적으세요..."></textarea>
+        </div>
+
+        <div class="card">
+            <h3>⚖️ 종목별 현재 수익률 비교</h3>
+            <canvas id="stockProfitChart" style="max-height: 180px;"></canvas>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 40px;">
+        <h3>🔍 종목별 현황 및 매매 의견</h3>
+        <table id="stock-table">
+            <thead>
+                <tr>
+                    <th>종목명</th>
+                    <th>보유 수량</th>
+                    <th>현재가</th>
+                    <th>수익률</th>
+                    <th>나의 매수/매도 의견 (목표가/수량 등)</th>
+                </tr>
+            </thead>
+            <tbody id="stock-list">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 데이터 보관소: Gem이 추출해준 JSON 데이터를 여기에 차곡차곡 배열로 추가하세요.
+    // 가장 마지막 원소가 '오늘'의 데이터로 자동 반영됩니다.
+    // ==========================================
+    const portfolioHistory = [
+        {
+            "date": "2026-05-17",
+            "total_asset": 22500000,
+            "principal": 15429928,
+            "total_profit": 7070072,
+            "total_profit_rate": 45.8,
+            "stocks": []
+        },
+        {
+            "date": "2026-05-18",
+            "total_asset": 23499458,
+            "principal": 15429928,
+            "total_profit": 8069530,
+            "total_profit_rate": 52.2,
+            "stocks": [
+                { "name": "시에나", "count": 10, "current_price": 835973, "profit_rate": 125.3 },
+                { "name": "INTW", "count": 15, "current_price": 413749, "profit_rate": 481.1 },
+                { "name": "METU", "count": 87, "current_price": 36970, "profit_rate": -26.3 },
+                { "name": "NVDL", "count": 10, "current_price": 180290, "profit_rate": 21.2 },
+                { "name": "PLTU", "count": 30, "current_price": 51998, "profit_rate": -44.8 },
+                { "name": "AMDL", "count": 20, "current_price": 73100, "profit_rate": 112.7 },
+                { "name": "TSLL", "count": 40, "current_price": 22242, "profit_rate": -30.5 }
+            ]
+        }
+    ];
+
+    // 최신 데이터 가져오기
+    const todayData = portfolioHistory[portfolioHistory.length - 1];
+
+    // 1. 상단 대시보드 텍스트 적용
+    document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
+    document.getElementById('txt-principal').innerText = todayData.principal.toLocaleString() + "원";
+    
+    const profitEl = document.getElementById('txt-total-profit');
+    const rateEl = document.getElementById('txt-profit-rate');
+    profitEl.innerText = (todayData.total_profit > 0 ? "+" : "") + todayData.total_profit.toLocaleString() + "원";
+    rateEl.innerText = (todayData.total_profit_rate > 0 ? "+" : "") + todayData.total_profit_rate + "%";
+    
+    const profitClass = todayData.total_profit >= 0 ? 'profit-positive' : 'profit-negative';
+    profitEl.className = profitClass;
+    rateEl.className = profitClass;
+
+    // 3. 종목 테이블 그리기 및 각 주식 매수/매도 의견란 생성
+    const stockListContainer = document.getElementById('stock-list');
+    todayData.stocks.forEach((stock, idx) => {
+        const tr = document.createElement('tr');
+        const rateClass = stock.profit_rate >= 0 ? 'profit-positive' : 'profit-negative';
+        const formattedRate = (stock.profit_rate > 0 ? "+" : "") + stock.profit_rate + "%";
+        
+        // 로컬 스토리지 키 생성 (의견 저장용)
+        const storageKey = `opinion_${stock.name}_${todayData.date}`;
+        const savedOpinion = localStorage.getItem(storageKey) || "";
+
+        tr.innerHTML = `
+            <td><strong>${stock.name}</strong></td>
+            <td>${stock.count}주</td>
+            <td>${stock.current_price.toLocaleString()}원</td>
+            <td class="${rateClass}">${formattedRate}</td>
+            <td>
+                <input type="text" class="opinion-input" id="input-${idx}" 
+                       placeholder="예: 조정시 추가 매수" value="${savedOpinion}"
+                       onchange="saveOpinion('${stock.name}', '${todayData.date}', this.value)">
+            </td>
+        `;
+        stockListContainer.appendChild(tr);
     });
-  }
 
-  function unhoverStars(id, rating) {
-    const card = document.getElementById('card-' + id);
-    if (!card) return;
-    card.querySelectorAll('.star').forEach((s, i) => {
-      s.classList.toggle('filled', i < rating);
-    });
-  }
-
-  // ─────────────────────────────────────────────
-  // 9. 렌더링: 위시리스트
-  // ─────────────────────────────────────────────
-  const WISH_ICONS = ['📗','📘','📙','📕','📓','📔','🔖','📚'];
-
-  function renderWishBooks() {
-    const query     = document.getElementById('search-wish').value.toLowerCase();
-    const wishBooks = books.filter(b => b.type === 'wish' &&
-      (b.title.toLowerCase().includes(query) || (b.author || '').toLowerCase().includes(query))
-    );
-
-    const list  = document.getElementById('wish-list');
-    const empty = document.getElementById('empty-wish');
-
-    if (wishBooks.length === 0) {
-      list.innerHTML  = '';
-      empty.style.display = 'block';
-      return;
+    // 의견 로컬스토리지 저장 함수
+    function saveOpinion(stockName, date, val) {
+        localStorage.setItem(`opinion_${stockName}_${date}`, val);
     }
-    empty.style.display = 'none';
 
-    list.innerHTML = wishBooks.map((book, idx) => `
-      <div class="wish-item">
-        <div class="wish-bullet">${WISH_ICONS[idx % WISH_ICONS.length]}</div>
-        <div class="wish-info">
-          <div class="wish-title">${escHtml(book.title)}</div>
-          <div class="wish-author">${escHtml(book.author || '저자 미상')}</div>
-        </div>
-        <span class="wish-tag">읽고 싶어요</span>
-        <button class="btn-delete" onclick="deleteBook(${book.id})" title="삭제">✕</button>
-      </div>
-    `).join('');
-  }
-
-  // ─────────────────────────────────────────────
-  // 10. 통계 & 게이지 업데이트
-  // ─────────────────────────────────────────────
-  function updateStats() {
-    const readBooks = books.filter(b => b.type === 'read');
-    const wishBooks = books.filter(b => b.type === 'wish');
-
-    // 이번 달 완독 (endDate 기준)
-    const now = new Date();
-    const yyyyMM = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-    const monthRead = readBooks.filter(b => b.endDate && b.endDate.startsWith(yyyyMM));
-
-    // 평균 별점
-    const rated = readBooks.filter(b => b.rating > 0);
-    const avgRating = rated.length
-      ? (rated.reduce((s, b) => s + b.rating, 0) / rated.length).toFixed(1)
-      : '-';
-
-    // 대시보드 카드
-    document.getElementById('stat-total').innerHTML = `${readBooks.length}<span class="value-unit">권</span>`;
-    document.getElementById('stat-month').innerHTML = `${monthRead.length}<span class="value-unit">권</span>`;
-    document.getElementById('stat-avg').innerHTML   = avgRating !== '-' ? `${avgRating}<span class="value-unit">점</span>` : `-`;
-    document.getElementById('stat-wish').innerHTML  = `${wishBooks.length}<span class="value-unit">권</span>`;
-
-    // 헤더 통계
-    document.getElementById('hdr-read').textContent = readBooks.length;
-    document.getElementById('hdr-wish').textContent = wishBooks.length;
-
-    // 배지
-    document.getElementById('badge-read').textContent = readBooks.length;
-    document.getElementById('badge-wish').textContent = wishBooks.length;
-
-    // 게이지 (이번 달 완독 / 목표)
-    const goal = loadGoal();
-    const pct  = Math.min(100, Math.round(monthRead.length / goal * 100));
-    document.getElementById('growth-bar').style.width = pct + '%';
-    document.getElementById('growth-pct').innerHTML =
-      `목표: ${goal}권 &nbsp;|&nbsp; <strong>${pct}%</strong> 달성 (${monthRead.length}/${goal}권)`;
-
-    // 성장 단계 이모지 활성화 (0~4단계)
-    const stage = Math.min(4, Math.floor(pct / 25)); // 0~100 → 0~4
-    document.querySelectorAll('.growth-stage').forEach(el => {
-      el.classList.toggle('active', parseInt(el.dataset.stage) === stage);
+    // 4. 총자산 추이 그래프 (Line Chart)
+    const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d');
+    new Chart(ctxHistory, {
+        type: 'line',
+        data: {
+            labels: portfolioHistory.map(d => d.date),
+            datasets: [{
+                label: '총자산 (원)',
+                data: portfolioHistory.map(d => d.total_asset),
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                tension: 0.2,
+                fill: true
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: '#29292e' }, ticks: { color: '#a8a8b3' } },
+                y: { grid: { color: '#29292e' }, ticks: { color: '#a8a8b3' } }
+            }
+        }
     });
-  }
 
-  // ─────────────────────────────────────────────
-  // 11. 전체 업데이트 (렌더 + 통계)
-  // ─────────────────────────────────────────────
-  function updateAll() {
-    updateStats();
-    renderReadBooks();
-    renderWishBooks();
-  }
+    // 종목별 수익률 비교 그래프 (Bar Chart)
+    const ctxProfit = document.getElementById('stockProfitChart').getContext('2d');
+    new Chart(ctxProfit, {
+        type: 'bar',
+        data: {
+            labels: todayData.stocks.map(s => s.name),
+            datasets: [{
+                data: todayData.stocks.map(s => s.profit_rate),
+                backgroundColor: todayData.stocks.map(s => s.profit_rate >= 0 ? '#ed374e' : '#3886d7')
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#a8a8b3' } },
+                y: { grid: { color: '#29292e' }, ticks: { color: '#a8a8b3' } }
+            }
+        }
+    });
 
-  // ─────────────────────────────────────────────
-  // 12. 토스트 알림
-  // ─────────────────────────────────────────────
-  function showToast(msg) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
-  }
-
-  // ─────────────────────────────────────────────
-  // 13. XSS 방지 HTML 이스케이프
-  // ─────────────────────────────────────────────
-  function escHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  // ─────────────────────────────────────────────
-  // 14. 월간 목표 변경 이벤트
-  // ─────────────────────────────────────────────
-  document.getElementById('goal-input').addEventListener('change', function() {
-    const v = Math.max(1, Math.min(99, parseInt(this.value) || 4));
-    this.value = v;
-    saveGoal(v);
-    updateStats();
-  });
-
-  // ─────────────────────────────────────────────
-  // 15. 앱 초기화
-  // ─────────────────────────────────────────────
-  (function init() {
-    loadBooks();
-    // 저장된 목표 값 복원
-    document.getElementById('goal-input').value = loadGoal();
-    // 오늘 날짜를 완독일 기본값으로
-    const today = new Date().toISOString().slice(0,10);
-    document.getElementById('f-end').value = today;
-    updateAll();
-  })();
-
-  </script>
+    // 오늘의 관점 자동 저장 기능
+    const viewArea = document.getElementById('market-view');
+    const viewKey = `market_view_${todayData.date}`;
+    viewArea.value = localStorage.getItem(viewKey) || "";
+    viewArea.addEventListener('input', (e) => {
+        localStorage.setItem(viewKey, e.target.value);
+    });
+</script>
 </body>
 </html>
