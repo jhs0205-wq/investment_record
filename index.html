@@ -33,6 +33,7 @@
         .container {
             max-width: 600px;
             margin: 0 auto;
+            position: relative;
         }
 
         header {
@@ -140,6 +141,98 @@
             font-size: 13px;
             box-sizing: border-box;
         }
+
+        /* 🛒 매수 / 매도 버튼 스타일 */
+        .trade-btn-group {
+            display: flex;
+            gap: 4px;
+            justify-content: flex-end;
+        }
+        .btn-trade {
+            border: none;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .btn-trade:hover { opacity: 1; }
+        .btn-buy { background-color: rgba(255, 94, 103, 0.15); color: var(--color-up); border: 1px solid rgba(255, 94, 103, 0.3); }
+        .btn-sell { background-color: rgba(77, 166, 255, 0.15); color: var(--color-down); border: 1px solid rgba(77, 166, 255, 0.3); }
+
+        .stock-info-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stock-holding-amount {
+            font-size: 11px;
+            color: var(--text-sub);
+            font-weight: normal;
+        }
+
+        /* 📝 따라다니는 이동식 플로팅 일지 창 스타일 */
+        .floating-diary-trigger {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .floating-diary-window {
+            position: fixed;
+            bottom: 85px;
+            right: 24px;
+            width: 320px;
+            background-color: #222226;
+            border: 1px solid #3c3c43;
+            border-radius: 16px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .diary-window-header {
+            background-color: #1a1a1e;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move; /* 드래그 가능 아이콘 */
+            user-select: none;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .diary-window-close {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .diary-window-close:hover { color: white; }
+
+        .diary-window-body {
+            padding: 14px;
+        }
     </style>
 </head>
 <body>
@@ -161,9 +254,10 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 40%;">자산명</th>
-                    <th style="width: 30%; text-align: right;">현재 시점가</th>
-                    <th style="width: 30%; text-align: right;">전날 대비 변화</th>
+                    <th style="width: 30%;">자산명</th>
+                    <th style="width: 25%; text-align: right;">현재 시점가</th>
+                    <th style="width: 25%; text-align: right;">전날 대비</th>
+                    <th style="width: 20%; text-align: right;">판단</th>
                 </tr>
             </thead>
             <tbody id="watchlist-list">
@@ -189,11 +283,6 @@
     </div>
 
     <div class="card">
-        <h3>📝 <span>오늘의 시장 관점 일지</span></h3>
-        <textarea id="market-view" style="height: 90px;" placeholder="오늘 시황에 대한 생각이나 메모를 기록하세요..."></textarea>
-    </div>
-
-    <div class="card">
         <h3>📊 <span>총자산 추이 비교</span></h3>
         <div class="chart-container">
             <canvas id="assetHistoryChart"></canvas>
@@ -207,20 +296,34 @@
         </div>
     </div>
 
-    <div class="card" style="margin-bottom: 40px; padding: 16px;">
+    <div class="card" style="margin-bottom: 60px; padding: 16px;">
         <h3>🔍 <span>보유 종목 현황 및 매매 의견</span></h3>
         <table id="stock-table">
             <thead>
                 <tr>
-                    <th style="width: 28%;">종목명</th>
-                    <th style="width: 25%; text-align: right;">현재가</th>
-                    <th style="width: 22%; text-align: right;">수익률</th>
-                    <th style="width: 25%;">매매 의견</th>
+                    <th style="width: 42%;">종목명 (보유액)</th>
+                    <th style="width: 20%; text-align: right;">현재가</th>
+                    <th style="width: 18%; text-align: right;">수익률</th>
+                    <th style="width: 20%;">매매 의견</th>
                 </tr>
             </thead>
             <tbody id="stock-list">
                 </tbody>
         </table>
+    </div>
+</div>
+
+<button class="floating-diary-trigger" onclick="toggleDiaryWindow()">
+    <span>📝</span> 일지 기록장
+</button>
+
+<div class="floating-diary-window" id="draggable-diary">
+    <div class="diary-window-header" id="draggable-diary-header">
+        <span>📌 관점 기록 창 (드래그하여 이동 가능)</span>
+        <button class="diary-window-close" onclick="toggleDiaryWindow()">×</button>
+    </div>
+    <div class="diary-window-body">
+        <textarea id="market-view" style="height: 180px; background-color: #141417;" placeholder="웹사이트 화면을 보면서 오늘 시장에 대한 생각을 자유롭게 기록하세요..."></textarea>
     </div>
 </div>
 
@@ -234,7 +337,7 @@
 
     window.onload = function() {
         if(db.length === 0) {
-            // 초기 기본 더미 데이터 세팅
+            // 초기 기본 데이터 세팅
             db = [
                 {
                     "date": "2026-05-17",
@@ -267,21 +370,22 @@
             localStorage.setItem('portfolio_db', JSON.stringify(db));
         }
         updateDashboard();
+        initDraggable();
     };
 
-    // [핵심 유연화 처리] 다양한 형식의 JSON을 읽을 수 있도록 변환기 수정
+    function toggleDiaryWindow() {
+        const win = document.getElementById('draggable-diary');
+        win.style.display = (win.style.display === 'block') ? 'none' : 'block';
+    }
+
     function applyGemData() {
         const rawText = document.getElementById('json-paste-box').value.trim();
         if(!rawText) return;
 
         try {
             const newData = JSON.parse(rawText);
-            if(!newData.date) {
-                alert("데이터에 'date' 항목이 누락되었습니다.");
-                return;
-            }
+            if(!newData.date) return;
 
-            // 만약 자산 총액 데이터가 누락되었다면 직전 데이터에서 상속처리 (버그 방지)
             if(!newData.total_asset && db.length > 0) {
                 newData.total_asset = db[db.length - 1].total_asset;
                 newData.principal = db[db.length - 1].principal;
@@ -290,7 +394,6 @@
             }
             if(!newData.stocks) newData.stocks = db[db.length - 1].stocks || [];
 
-            // [유연화 파싱] market_watchlist가 배열 구조 등으로 올 경우 유연하게 오브젝트화
             if (newData.market_watchlist && Array.isArray(newData.market_watchlist)) {
                 const convertedList = {};
                 newData.market_watchlist.forEach(item => {
@@ -308,9 +411,9 @@
             
             document.getElementById('json-paste-box').value = "";
             updateDashboard();
-            alert(`${newData.date} 데이터 변환 및 정상 수용 완료!`);
+            alert(`${newData.date} 데이터 처리 완료!`);
         } catch(e) {
-            alert("JSON 구문 오류가 발견되었습니다. 복사 영역을 다시 확인해주세요.");
+            alert("JSON 구문오류가 발견되었습니다.");
         }
     }
 
@@ -318,7 +421,7 @@
         const todayData = db[db.length - 1];
         const prevData = db.length > 1 ? db[db.length - 2] : null;
 
-        // 1. 관측 종목 렌더링
+        // 1. 관심종목 현황판 렌더링 (+ 매수/매도 버튼 조립)
         const watchlistContainer = document.getElementById('watchlist-list');
         watchlistContainer.innerHTML = "";
         
@@ -341,42 +444,54 @@
                 const isIndex = key === "코스피" || key === "나스닥";
                 const formattedPrice = isIndex ? currentPrice.toLocaleString() : currentPrice.toLocaleString() + (key === "구글" || key === "엔비디아" || key === "시에나" ? " $" : " 원");
 
+                // 지수 상품군에는 거래버튼 숨김, 개별종목에만 활성화 기본화
+                const buttonHTML = isIndex ? '' : `
+                    <div class="trade-btn-group">
+                        <button class="btn-trade btn-buy" onclick="alert('${key} 매수 아이디어를 기록합니다.')">매수</button>
+                        <button class="btn-trade btn-sell" onclick="alert('${key} 매도 아이디어를 기록합니다.')">매도</button>
+                    </div>
+                `;
+
                 tr.innerHTML = `
                     <td><strong>${key}</strong></td>
                     <td class="price-cell">${formattedPrice}</td>
                     <td class="profit-cell ${changeClass}">${changeText}</td>
+                    <td>${buttonHTML}</td>
                 `;
                 watchlistContainer.appendChild(tr);
             });
         }
 
-        // 2. 오버뷰 연동
+        // 2. 상단 총액 연동
         document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
         document.getElementById('txt-principal').innerText = todayData.principal.toLocaleString() + "원";
         const profitRateEl = document.getElementById('txt-total-profit-rate');
         profitRateEl.innerText = `${todayData.total_profit_rate >= 0 ? "+" : ""}${todayData.total_profit_rate}%`;
         profitRateEl.className = `balance-value ${todayData.total_profit_rate >= 0 ? 'val-up' : 'val-down'}`;
 
-        // 3. 기록장 노트 저장
+        // 3. 플로팅 노트 데이터 동기화
         const viewArea = document.getElementById('market-view');
         const viewKey = `market_view_${todayData.date}`;
         viewArea.value = localStorage.getItem(viewKey) || "";
         viewArea.oninput = function(e) { localStorage.setItem(viewKey, e.target.value); };
 
-        // 4. 보유 주식 상세 렌더링
+        // 4. 보유 자산 리스트 연동 (+ 평가 금액 연산 추가)
         const stockListContainer = document.getElementById('stock-list');
         stockListContainer.innerHTML = "";
-        todayData.stocks.forEach((stock, idx) => {
+        todayData.stocks.forEach((stock) => {
             const tr = document.createElement('tr');
             const rateClass = stock.profit_rate >= 0 ? 'val-up' : 'val-down';
             const formattedCount = Number.isInteger(stock.count) ? `${stock.count}주` : `${stock.count.toFixed(4)}주`;
+            
+            // 수량 * 현재가를 통한 실시간 종목별 보유 금액 계산
+            const holdingAmount = Math.round(stock.count * stock.current_price);
             const opinionKey = `opinion_${stock.name}_${todayData.date}`;
 
             tr.innerHTML = `
                 <td>
-                    <div class="stock-name-cell">
-                        <span class="stock-ticker">${stock.name}</span>
-                        <span class="stock-quantity">${formattedCount}</span>
+                    <div class="stock-info-block">
+                        <div><strong>${stock.name}</strong> <span style="font-size:12px; color:var(--text-sub);">(${formattedCount})</span></div>
+                        <div class="stock-holding-amount">보유액: ${holdingAmount.toLocaleString()}원</div>
                     </div>
                 </td>
                 <td class="price-cell">${stock.current_price.toLocaleString()}원</td>
@@ -388,7 +503,7 @@
             stockListContainer.appendChild(tr);
         });
 
-        // 5. 총자산 차트 그리기
+        // 5. 시계열 자산 선 그래프 (Line Chart)
         const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d');
         if(assetChartInstance) assetChartInstance.destroy();
         assetChartInstance = new Chart(ctxHistory, {
@@ -407,7 +522,7 @@
             options: { maintainAspectRatio: false, plugins: { datalabels: { display: false }, legend: { display: false } } }
         });
 
-        // 6. 종목 바 차트 그리기
+        // 6. 보유 자산 막대 그래프 (Bar Chart)
         const ctxProfit = document.getElementById('stockProfitChart').getContext('2d');
         if(stockChartInstance) stockChartInstance.destroy();
         stockChartInstance = new Chart(ctxProfit, {
@@ -433,6 +548,55 @@
                 }
             }
         });
+    }
+
+    // 📌 미니 창 드래그 이동 자바스크립트 엔진 (마우스 & 터치 인터페이스 완벽 지원)
+    function initDraggable() {
+        const el = document.getElementById("draggable-diary");
+        const header = document.getElementById("draggable-diary-header");
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+        header.onmousedown = dragMouseDown;
+        header.ontouchstart = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            // 터치 이벤트 대응 포함
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            pos3 = clientX;
+            pos4 = clientY;
+            
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+            document.ontouchend = closeDragElement;
+            document.ontouchmove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            pos1 = pos3 - clientX;
+            pos2 = pos4 - clientY;
+            pos3 = clientX;
+            pos4 = clientY;
+
+            // 창 위치 리포지셔닝
+            el.style.top = (el.offsetTop - pos2) + "px";
+            el.style.left = (el.offsetLeft - pos1) + "px";
+            el.style.bottom = "auto";
+            el.style.right = "auto";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+            document.ontouchend = null;
+            document.ontouchmove = null;
+        }
     }
 </script>
 </body>
