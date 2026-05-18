@@ -5,20 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sleek Portfolio Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <style>
-        /* [DESIGN] Modern Dark Theme with Accent Colors */
         :root {
-            --bg-neutral: #141417;   /* Deep Dark for BG */
-            --bg-card: #1e1e22;      /* Elevated Grey for Cards */
-            --text-main: #f0f0f3;    /* Near White for Primary Text */
-            --text-sub: #9ea4ae;     /* Cool Grey for Labels */
-            --border-subtle: #2d2d33; /* Darker grey for borders */
-            --chart-grid: #2a2a2e;
+            --bg-neutral: #141417;
+            --bg-card: #1e1e22;
+            --text-main: #f0f0f3;
+            --text-sub: #9ea4ae;
+            --border-subtle: #2d2d33;
             
-            --color-up: #ff5e67;     /* Warm Coral for Profit */
-            --color-down: #4da6ff;   /* Soft Blue for Loss */
-            --color-accent: #6c5ce7;  /* Purple for Interactive elements */
+            --color-up: #ff5e67;
+            --color-down: #4da6ff;
+            --color-accent: #6c5ce7;
         }
 
         body {
@@ -32,11 +31,10 @@
         }
 
         .container {
-            max-width: 600px; /* Mobile-first container */
+            max-width: 600px;
             margin: 0 auto;
         }
 
-        /* [DESIGN] Clean Header */
         header {
             margin-bottom: 24px;
             padding-bottom: 8px;
@@ -46,7 +44,6 @@
         h1 { font-size: 20px; font-weight: 700; margin: 0; color: var(--text-main); }
         .header-sub { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
 
-        /* [DESIGN] Card Component - Modern elevated look */
         .card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-subtle);
@@ -58,11 +55,9 @@
 
         h3 { font-size: 15px; font-weight: 600; color: var(--text-main); margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 
-        /* [DESIGN] Profit/Loss Text Colorization */
         .val-up { color: var(--color-up); }
         .val-down { color: var(--color-down); }
 
-        /* [DESIGN] Optimized Asset Overview Section */
         .asset-overview {
             display: flex;
             flex-direction: column;
@@ -81,13 +76,41 @@
         .balance-label { font-size: 12px; color: var(--text-sub); }
         .balance-value { font-size: 15px; font-weight: 600; }
 
-        /* [DESIGN] Polished Charts */
+        /* 대형 입력창 전용 스타일 (복붙함 및 시장 관점용) */
+        textarea {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            color: var(--text-main);
+            padding: 12px;
+            box-sizing: border-box;
+            resize: none;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        textarea:focus { outline: none; border-color: var(--color-accent); }
+
+        .btn-apply {
+            width: 100%;
+            background-color: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+        .btn-apply:hover { opacity: 0.9; }
+
         .chart-container {
             position: relative;
-            height: 180px;
+            height: 190px;
         }
 
-        /* [DESIGN] Streamlined Table with better KOR spacing */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -119,7 +142,6 @@
         .price-cell { text-align: right; }
         .profit-cell { text-align: right; font-weight: 600; }
 
-        /* [DESIGN] Modern, less obtrusive input */
         .opinion-input {
             width: 100%;
             background-color: rgba(255,255,255,0.03);
@@ -132,8 +154,6 @@
             transition: border-color 0.2s;
         }
         .opinion-input:focus { outline: none; border-color: var(--color-accent); }
-        .opinion-input::placeholder { color: #555; font-style: italic; }
-
     </style>
 </head>
 <body>
@@ -141,8 +161,14 @@
 <div class="container">
     <header>
         <h1>나의 자산 및 주식 관점 일지</h1>
-        <div class="header-sub">매일의 포트폴리오 상태와 매매 전략을 세련되게 기록합니다.</div>
+        <div class="header-sub">Gem에서 복사한 텍스트를 붙여넣어 화면을 즉시 업데이트하세요.</div>
     </header>
+
+    <div class="card" style="border-color: var(--color-accent);">
+        <h3>📥 <span>Gem 추출 데이터 복붙함</span></h3>
+        <textarea id="json-paste-box" style="height: 100px; font-family: monospace;" placeholder="Gem이 텍스트로 뽑아준 JSON 데이터를 여기에 붙여넣으세요."></textarea>
+        <button class="btn-apply" onclick="applyGemData()">데이터 즉시 적용 및 변환하기</button>
+    </div>
 
     <div class="card">
         <h3>📈 <span style="margin-left: 2px;">현재 자산 현황 Overview</span></h3>
@@ -159,6 +185,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="card">
+        <h3>📝 <span>오늘의 시장 관점 일지</span></h3>
+        <textarea id="market-view" style="height: 90px;" placeholder="오늘 시황에 대한 개인적인 생각이나 메모를 기록하세요..."></textarea>
     </div>
 
     <div class="card">
@@ -196,154 +227,201 @@
 </div>
 
 <script>
-    // ==========================================
-    // [DESIGN] Optimized Sample Data from Screenshot
-    // ==========================================
-    const portfolioHistory = [
-        {
-            "date": "2026-05-17",
-            "total_asset": 22500000,
-            "principal": 15429928,
-            "total_profit": 7070072,
-            "total_profit_rate": 45.8,
-            "stocks": []
-        },
-        {
-            "date": "2026-05-18", // Data derived from your screenshot
-            "total_asset": 23499458,
-            "principal": 15429928,
-            "total_profit": 8069530,
-            "total_profit_rate": 52.2,
-            "stocks": [
-                { "name": "시에나", "count": 10, "avg_price": 371048, "current_price": 835973, "profit_rate": 125.3 },
-                { "name": "INTW", "count": 15, "avg_price": 71206, "current_price": 413794, "profit_rate": 481.1 },
-                { "name": "METU", "count": 87, "avg_price": 50174, "current_price": 36970, "profit_rate": -26.3 },
-                { "name": "NVDL", "count": 10, "avg_price": 148686, "current_price": 180290, "profit_rate": 21.2 },
-                { "name": "PLTU", "count": 30, "avg_price": 94344, "current_price": 51998, "profit_rate": -44.8 },
-                { "name": "AMDL", "count": 20, "avg_price": 34366, "current_price": 73100, "profit_rate": 112.7 },
-                { "name": "TSLL", "count": 40, "avg_price": 32007, "current_price": 22242, "profit_rate": -30.5 },
-                { "name": "애플", "count": 0.004171, "avg_price": 320306, "current_price": 447630, "profit_rate": 39.7 }
-            ]
-        }
-    ];
+    // 브라우저 내부 로컬 데이터베이스 연동
+    let db = JSON.parse(localStorage.getItem('portfolio_db')) || [];
+    
+    let assetChartInstance = null;
+    let stockChartInstance = null;
 
-    // Chart.js Global Modern Config
     Chart.defaults.font.family = "'Pretendard', sans-serif";
-    Chart.defaults.color = "#9ea4ae"; // var(--text-sub)
-    Chart.defaults.plugins.tooltip.backgroundColor = "rgba(30, 30, 34, 0.9)"; // var(--bg-card)
-    Chart.defaults.plugins.tooltip.titleColor = "#f0f0f3"; // var(--text-main)
+    Chart.defaults.color = "#9ea4ae";
+    Chart.defaults.plugins.tooltip.backgroundColor = "rgba(30, 30, 34, 0.9)";
+    Chart.defaults.plugins.tooltip.titleColor = "#f0f0f3";
     Chart.defaults.plugins.tooltip.bodyColor = "#f0f0f3";
 
-    const todayData = portfolioHistory[portfolioHistory.length - 1];
+    window.onload = function() {
+        if(db.length === 0) {
+            // 최초 접속 시 보여줄 기본 초기 데이터 설정
+            db = [{
+                "date": "2026-05-18",
+                "total_asset": 23679417,
+                "principal": 15429928,
+                "total_profit": 8249489,
+                "total_profit_rate": 53.4,
+                "stocks": [
+                    { "name": "시에나", "count": 10, "current_price": 854886, "profit_rate": 130.3 },
+                    { "name": "INTW", "count": 15, "current_price": 413944, "profit_rate": 481.3 },
+                    { "name": "METU", "count": 87, "current_price": 36925, "profit_rate": -26.4 },
+                    { "name": "NVDL", "count": 10, "current_price": 179556, "profit_rate": 20.7 },
+                    { "name": "PLTU", "count": 30, "current_price": 52193, "profit_rate": -44.6 },
+                    { "name": "AMDL", "count": 20, "current_price": 72890, "profit_rate": 112.0 },
+                    { "name": "TSLL", "count": 40, "current_price": 22197, "profit_rate": -30.6 },
+                    { "name": "애플", "count": 0.004171, "current_price": 447165, "profit_rate": 39.6 }
+                ]
+            }];
+            localStorage.setItem('portfolio_db', JSON.stringify(db));
+        }
+        updateDashboard();
+    };
 
-    // 1. [DESIGN] Update Overview with styled Profit/Loss rate
-    document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
-    document.getElementById('txt-principal').innerText = todayData.principal.toLocaleString() + "원";
-    
-    const profitRateEl = document.getElementById('txt-total-profit-rate');
-    const sign = todayData.total_profit_rate >= 0 ? "+" : "";
-    profitRateEl.innerText = `${sign}${todayData.total_profit_rate}%`;
-    profitRateEl.className = `balance-value ${todayData.total_profit_rate >= 0 ? 'val-up' : 'val-down'}`;
+    // 붙여넣은 텍스트 파싱 및 처리 함수
+    function applyGemData() {
+        const rawText = document.getElementById('json-paste-box').value.trim();
+        if(!rawText) {
+            alert("Gem에게 받은 데이터를 붙여넣어 주세요.");
+            return;
+        }
 
+        try {
+            const newData = JSON.parse(rawText);
+            
+            if(!newData.date || !newData.total_asset) {
+                alert("정확한 주식 데이터 형식이 아닙니다.");
+                return;
+            }
 
-    // 3. [DESIGN] Streamlined Stock Table with Opinions
-    const stockListContainer = document.getElementById('stock-list');
-    todayData.stocks.forEach((stock, idx) => {
-        const tr = document.createElement('tr');
-        
-        // Color coding profit rate
-        const rateClass = stock.profit_rate >= 0 ? 'val-up' : 'val-down';
-        const formattedRate = (stock.profit_rate > 0 ? "+" : "") + stock.profit_rate.toFixed(1) + "%";
-        
-        // Handling fractional shares
-        const formattedCount = Number.isInteger(stock.count) ? `${stock.count}주` : `${stock.count.toFixed(6)}주`;
+            const existingIndex = db.findIndex(item => item.date === newData.date);
+            if (existingIndex !== -1) {
+                db[existingIndex] = newData;
+            } else {
+                db.push(newData);
+            }
 
-        // Local Storage for storing user opinions per stock per date
-        const opinionStorageKey = `opinion_${stock.name}_${todayData.date}`;
-        const savedOpinion = localStorage.getItem(opinionStorageKey) || "";
+            db.sort((a, b) => new Date(a.date) - new Date(b.date));
+            localStorage.setItem('portfolio_db', JSON.stringify(db));
+            
+            document.getElementById('json-paste-box').value = "";
+            updateDashboard();
+            alert(`${newData.date} 자산 기록이 대시보드에 업데이트되었습니다.`);
 
-        tr.innerHTML = `
-            <td>
-                <div class="stock-name-cell">
-                    <span class="stock-ticker">${stock.name}</span>
-                    <span class="stock-quantity">${formattedCount}</span>
-                </div>
-            </td>
-            <td class="price-cell">${stock.current_price.toLocaleString()}원</td>
-            <td class="profit-cell ${rateClass}">${formattedRate}</td>
-            <td>
-                <input type="text" class="opinion-input" id="input-${idx}" 
-                       placeholder="예: 조정시 매수" value="${savedOpinion}"
-                       onchange="saveStockOpinion('${stock.name}', '${todayData.date}', this.value)">
-            </td>
-        `;
-        stockListContainer.appendChild(tr);
-    });
-
-    // Opinion Auto-Save Function
-    function saveStockOpinion(stockName, date, opinionText) {
-        localStorage.setItem(`opinion_${stockName}_${date}`, opinionText);
+        } catch(e) {
+            alert("JSON 해석 오류입니다. 코드 내용만 똑바로 복사되었는지 확인해주세요.");
+        }
     }
 
-    // ==========================================
-    // [DESIGN] CHART 1: Elegant Asset Line Chart
-    // ==========================================
-    const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d');
-    new Chart(ctxHistory, {
-        type: 'line',
-        data: {
-            labels: portfolioHistory.map(d => d.date.split('-').slice(1).join('.')), // M.DD
-            datasets: [{
-                data: portfolioHistory.map(d => d.total_asset),
-                borderColor: '#6c5ce7', // var(--color-accent) Purple
-                backgroundColor: 'rgba(108, 92, 231, 0.08)',
-                borderWidth: 2.5,
-                tension: 0.3, // Rounded smooth curve
-                fill: true,
-                pointBackgroundColor: '#6c5ce7',
-                pointBorderColor: '#1e1e22',
-                pointBorderWidth: 1.5,
-                pointRadius: 3,
-                pointHoverRadius: 5
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { color: '#2a2a2e' }, ticks: { color: '#9ea4ae', font: { size: 10 } } },
-                y: { grid: { color: '#2a2a2e' }, ticks: { display: false } } // Simplified Y axis
-            }
-        }
-    });
+    // 종합 UI 업데이트 및 동적 그리기
+    function updateDashboard() {
+        const todayData = db[db.length - 1];
 
-    // ==========================================
-    // [DESIGN] CHART 2: Modern Bar Chart for Profit Comparison
-    // ==========================================
-    const ctxProfit = document.getElementById('stockProfitChart').getContext('2d');
-    const colorUp = getComputedStyle(document.documentElement).getPropertyValue('--color-up').trim();
-    const colorDown = getComputedStyle(document.documentElement).getPropertyValue('--color-down').trim();
+        // 1. 자산 상단 패널 갱신
+        document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
+        document.getElementById('txt-principal').innerText = todayData.principal.toLocaleString() + "원";
+        
+        const profitRateEl = document.getElementById('txt-total-profit-rate');
+        const sign = todayData.total_profit_rate >= 0 ? "+" : "";
+        profitRateEl.innerText = `${sign}${todayData.total_profit_rate}%`;
+        profitRateEl.className = `balance-value ${todayData.total_profit_rate >= 0 ? 'val-up' : 'val-down'}`;
 
-    new Chart(ctxProfit, {
-        type: 'bar',
-        data: {
-            labels: todayData.stocks.map(s => s.name),
-            datasets: [{
-                data: todayData.stocks.map(s => s.profit_rate),
-                backgroundColor: todayData.stocks.map(s => s.profit_rate >= 0 ? colorUp : colorDown),
-                borderRadius: 4, // Rounded bars
-                barPercentage: 0.6
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { display: false }, ticks: { color: '#9ea4ae', font: { size: 10 } } },
-                y: { grid: { color: '#2a2a2e' }, ticks: { color: '#9ea4ae', font: { size: 10 } } }
+        // 2. 시장 관점 연동 및 자동저장 기능 추가
+        const viewArea = document.getElementById('market-view');
+        const viewKey = `market_view_${todayData.date}`;
+        viewArea.value = localStorage.getItem(viewKey) || "";
+        viewArea.oninput = function(e) {
+            localStorage.setItem(viewKey, e.target.value);
+        };
+
+        // 3. 종목 현황 테이블 리스트 갱신
+        const stockListContainer = document.getElementById('stock-list');
+        stockListContainer.innerHTML = "";
+        
+        todayData.stocks.forEach((stock, idx) => {
+            const tr = document.createElement('tr');
+            const rateClass = stock.profit_rate >= 0 ? 'val-up' : 'val-down';
+            const formattedRate = (stock.profit_rate > 0 ? "+" : "") + stock.profit_rate.toFixed(1) + "%";
+            const formattedCount = Number.isInteger(stock.count) ? `${stock.count}주` : `${stock.count.toFixed(6)}주`;
+
+            const opinionStorageKey = `opinion_${stock.name}_${todayData.date}`;
+            const savedOpinion = localStorage.getItem(opinionStorageKey) || "";
+
+            tr.innerHTML = `
+                <td>
+                    <div class="stock-name-cell">
+                        <span class="stock-ticker">${stock.name}</span>
+                        <span class="stock-quantity">${formattedCount}</span>
+                    </div>
+                </td>
+                <td class="price-cell">${stock.current_price.toLocaleString()}원</td>
+                <td class="profit-cell ${rateClass}">${formattedRate}</td>
+                <td>
+                    <input type="text" class="opinion-input" id="input-${idx}" 
+                           placeholder="계획 입력" value="${savedOpinion}"
+                           onchange="localStorage.setItem('${opinionStorageKey}', this.value)">
+                </td>
+            `;
+            stockListContainer.appendChild(tr);
+        });
+
+        // 4. CHART 1: 총자산 추이 그래프 (Line)
+        const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d');
+        if(assetChartInstance) assetChartInstance.destroy();
+        assetChartInstance = new Chart(ctxHistory, {
+            type: 'line',
+            data: {
+                labels: db.map(d => d.date.split('-').slice(1).join('.')),
+                datasets: [{
+                    data: db.map(d => d.total_asset),
+                    borderColor: '#6c5ce7',
+                    backgroundColor: 'rgba(108, 92, 231, 0.08)',
+                    borderWidth: 2.5,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#6c5ce7',
+                    pointBorderColor: '#1e1e22',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { datalabels: { display: false }, legend: { display: false } },
+                scales: {
+                    x: { grid: { color: '#2a2a2e' }, ticks: { font: { size: 10 } } },
+                    y: { grid: { color: '#2a2a2e' }, ticks: { display: false } }
+                }
             }
-        }
-    });
+        });
+
+        // 5. CHART 2: 종목별 수익률 상시 수치 표시 그래프 (Bar)
+        const ctxProfit = document.getElementById('stockProfitChart').getContext('2d');
+        const colorUp = getComputedStyle(document.documentElement).getPropertyValue('--color-up').trim();
+        const colorDown = getComputedStyle(document.documentElement).getPropertyValue('--color-down').trim();
+
+        if(stockChartInstance) stockChartInstance.destroy();
+        stockChartInstance = new Chart(ctxProfit, {
+            type: 'bar',
+            plugins: [ChartDataLabels],
+            data: {
+                labels: todayData.stocks.map(s => s.name),
+                datasets: [{
+                    data: todayData.stocks.map(s => s.profit_rate),
+                    backgroundColor: todayData.stocks.map(s => s.profit_rate >= 0 ? colorUp : colorDown),
+                    borderRadius: 4,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: { padding: { top: 24 } },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        display: true,
+                        align: 'end',
+                        anchor: 'end',
+                        color: '#f0f0f3',
+                        font: { size: 10, weight: '600' },
+                        formatter: function(value) {
+                            return (value > 0 ? '+' : '') + value.toFixed(1) + '%';
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: { grid: { color: '#2a2a2e' }, ticks: { font: { size: 10 } }, grace: '10%' }
+                }
+            }
+        });
+    }
 </script>
 </body>
 </html>
