@@ -132,30 +132,6 @@
         .price-cell { text-align: right; }
         .profit-cell { text-align: right; font-weight: 600; }
 
-        /* 🛒 버튼 인터페이스 스타일 (누르면 사라지고 꾹 누르면 부활) */
-        .trade-btn-container {
-            display: flex;
-            gap: 4px;
-            justify-content: flex-end;
-            min-width: 85px;
-        }
-        .btn-opinion {
-            border: none;
-            padding: 6px 10px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            transition: all 0.15s ease;
-        }
-        .btn-buy-opt { background-color: rgba(255, 94, 103, 0.15); color: var(--color-up); border: 1px solid rgba(255, 94, 103, 0.3); }
-        .btn-sell-opt { background-color: rgba(77, 166, 255, 0.15); color: var(--color-down); border: 1px solid rgba(77, 166, 255, 0.3); }
-        
-        .btn-buy-opt:hover { background-color: rgba(255, 94, 103, 0.3); }
-        .btn-sell-opt:hover { background-color: rgba(77, 166, 255, 0.3); }
-
         .stock-info-block {
             display: flex;
             flex-direction: column;
@@ -166,7 +142,6 @@
             color: var(--text-sub);
         }
 
-        /* 📝 플로팅 일지 전용 컴포넌트 */
         .floating-diary-trigger {
             position: fixed;
             bottom: 24px;
@@ -246,10 +221,9 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 32%;">자산명</th>
-                    <th style="width: 25%; text-align: right;">현재 시점가</th>
-                    <th style="width: 23%; text-align: right;">전날 대비</th>
-                    <th style="width: 20%; text-align: right;">의견 선택</th>
+                    <th style="width: 40%;">자산명</th>
+                    <th style="width: 30%; text-align: right;">현재 시점가</th>
+                    <th style="width: 30%; text-align: right;">전날 대비</th>
                 </tr>
             </thead>
             <tbody id="watchlist-list">
@@ -289,14 +263,13 @@
     </div>
 
     <div class="card" style="margin-bottom: 60px; padding: 16px;">
-        <h3>🔍 <span>보유 종목 현황 및 매매 판단</span></h3>
+        <h3>🔍 <span>보유 종목 현황</span></h3>
         <table id="stock-table">
             <thead>
                 <tr>
-                    <th style="width: 42%;">종목명 (보유액)</th>
-                    <th style="width: 23%; text-align: right;">현재가</th>
-                    <th style="width: 15%; text-align: right;">수익률</th>
-                    <th style="width: 20%; text-align: right;">의견 선택</th>
+                    <th style="width: 50%;">종목명 (보유액)</th>
+                    <th style="width: 25%; text-align: right;">현재가</th>
+                    <th style="width: 25%; text-align: right;">수익률</th>
                 </tr>
             </thead>
             <tbody id="stock-list">
@@ -311,7 +284,7 @@
 
 <div class="floating-diary-window" id="draggable-diary">
     <div class="diary-window-header" id="draggable-diary-header">
-        <span>📌 관점 기록장 (꾹 누르면 판단 수정가능)</span>
+        <span>📌 관점 기록장</span>
         <button class="diary-window-close" onclick="toggleDiaryWindow()">×</button>
     </div>
     <div class="diary-window-body">
@@ -323,6 +296,8 @@
     let db = JSON.parse(localStorage.getItem('portfolio_db')) || [];
     let assetChartInstance = null;
     let stockChartInstance = null;
+
+    const USD_KRW_EXCHANGE_RATE = 1380;
 
     Chart.defaults.font.family = "'Pretendard', sans-serif";
     Chart.defaults.color = "#9ea4ae";
@@ -408,76 +383,10 @@
         }
     }
 
-    // 🛒 [핵심 로직] 버튼 클릭 시 토글 액션 및 롱프레스(꾹 누르기) 리셋 엔진
-    function createTradeButtons(key, date) {
-        const storageKey = `trade_opt_${key}_${date}`;
-        const savedDecision = localStorage.getItem(storageKey) || ""; // "BUY", "SELL", ""
-
-        const container = document.createElement('div');
-        container.className = 'trade-btn-container';
-
-        const buyBtn = document.createElement('button');
-        buyBtn.className = 'btn-opinion btn-buy-opt';
-        buyBtn.innerText = '매수';
-
-        const sellBtn = document.createElement('button');
-        sellBtn.className = 'btn-opinion btn-sell-opt';
-        sellBtn.innerText = '매도';
-
-        // 판단 적용 핸들러
-        function applyDecision(choice) {
-            localStorage.setItem(storageKey, choice);
-            renderState(choice);
-        }
-
-        // 꾹 누르면 리셋 핸들러 세팅
-        function bindLongPress(btn) {
-            let pressTimer;
-            
-            // 데스크톱 및 모바일 터치 이벤트 바인딩
-            const start = () => {
-                pressTimer = window.setTimeout(() => {
-                    localStorage.removeItem(storageKey);
-                    renderState("");
-                }, 1000); // 1초간 누르면 초기화
-            };
-            const cancel = () => clearTimeout(pressTimer);
-
-            btn.addEventListener('mousedown', start);
-            btn.addEventListener('touchstart', start, {passive: true});
-            btn.addEventListener('mouseup', cancel);
-            btn.addEventListener('mouseleave', cancel);
-            btn.addEventListener('touchend', cancel);
-        }
-
-        function renderState(state) {
-            buyBtn.style.display = 'inline-block';
-            sellBtn.style.display = 'inline-block';
-
-            if (state === 'BUY') {
-                sellBtn.style.display = 'none';
-            } else if (state === 'SELL') {
-                buyBtn.style.display = 'none';
-            }
-        }
-
-        buyBtn.onclick = () => { if(!localStorage.getItem(storageKey)) applyDecision('BUY'); };
-        sellBtn.onclick = () => { if(!localStorage.getItem(storageKey)) applyDecision('SELL'); };
-
-        bindLongPress(buyBtn);
-        bindLongPress(sellBtn);
-        renderState(savedDecision);
-
-        container.appendChild(buyBtn);
-        container.appendChild(sellBtn);
-        return container;
-    }
-
     function updateDashboard() {
         const todayData = db[db.length - 1];
         const prevData = db.length > 1 ? db[db.length - 2] : null;
 
-        // 1. 관심 종목 테이블 빌드
         const watchlistContainer = document.getElementById('watchlist-list');
         watchlistContainer.innerHTML = "";
         
@@ -486,7 +395,7 @@
             Object.keys(todayData.market_watchlist).forEach(key => {
                 watchlistNames.push(key);
                 const tr = document.createElement('tr');
-                const currentPrice = todayData.market_watchlist[key];
+                let currentPrice = todayData.market_watchlist[key];
                 
                 let changeText = "0.0%";
                 let changeClass = "";
@@ -499,26 +408,25 @@
                 }
 
                 const isIndex = key === "코스피" || key === "나스닥";
-                const formattedPrice = isIndex ? currentPrice.toLocaleString() : currentPrice.toLocaleString() + (key === "구글" || key === "엔비디아" || key === "시에나" ? " $" : " 원");
+                const isUsStock = key === "구글" || key === "엔비디아" || key === "시에나";
+                
+                if (isUsStock && currentPrice < 5000) { 
+                    currentPrice = Math.round(currentPrice * USD_KRW_EXCHANGE_RATE);
+                }
+
+                const formattedPrice = currentPrice.toLocaleString() + (isIndex ? "" : " 원");
 
                 tr.innerHTML = `<td><strong>${key}</strong></td><td class="price-cell">${formattedPrice}</td><td class="profit-cell ${changeClass}">${changeText}</td>`;
-                
-                const tdBtn = document.createElement('td');
-                if(!isIndex) tdBtn.appendChild(createTradeButtons(key, todayData.date));
-                tr.appendChild(tdBtn);
-
                 watchlistContainer.appendChild(tr);
             });
         }
 
-        // 2. 상단 총액 매핑
         document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
         document.getElementById('txt-principal').innerText = todayData.principal.toLocaleString() + "원";
         const profitRateEl = document.getElementById('txt-total-profit-rate');
         profitRateEl.innerText = `${todayData.total_profit_rate >= 0 ? "+" : ""}${todayData.total_profit_rate}%`;
         profitRateEl.className = `balance-value ${todayData.total_profit_rate >= 0 ? 'val-up' : 'val-down'}`;
 
-        // 3. 보유 자산 테이블 빌드 (+ 평가액 연산)
         const stockListContainer = document.getElementById('stock-list');
         stockListContainer.innerHTML = "";
         
@@ -540,19 +448,12 @@
                 <td class="price-cell">${stock.current_price.toLocaleString()}원</td>
                 <td class="profit-cell ${rateClass}">${stock.profit_rate >= 0 ? "+" : ""}${stock.profit_rate}%</td>
             `;
-            
-            const tdBtn = document.createElement('td');
-            tdBtn.appendChild(createTradeButtons(stock.name, todayData.date));
-            tr.appendChild(tdBtn);
-
             stockListContainer.appendChild(tr);
         });
 
-        // 📝 [부활 & 업그레이드] 일지창 내부에 보유/관심 종목 템플릿 목록 자동 주입
         const viewArea = document.getElementById('market-view');
         const viewKey = `market_view_${todayData.date}`;
         
-        // 로컬스토리지에 저장된 값이 없으면 종목명을 나열한 템플릿 기본 제공
         if (!localStorage.getItem(viewKey)) {
             let template = `[오늘의 시황 기록: ${todayData.date}]\n\n`;
             template += `■ 보유 종목 관점\n`;
@@ -565,7 +466,6 @@
         viewArea.value = localStorage.getItem(viewKey);
         viewArea.oninput = function(e) { localStorage.setItem(viewKey, e.target.value); };
 
-        // 4. 차트 그래픽 빌드 (Line)
         const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d');
         if(assetChartInstance) assetChartInstance.destroy();
         assetChartInstance = new Chart(ctxHistory, {
@@ -584,7 +484,6 @@
             options: { maintainAspectRatio: false, plugins: { datalabels: { display: false }, legend: { display: false } } }
         });
 
-        // 5. 차트 그래픽 빌드 (Bar)
         const ctxProfit = document.getElementById('stockProfitChart').getContext('2d');
         if(stockChartInstance) stockChartInstance.destroy();
         stockChartInstance = new Chart(ctxProfit, {
@@ -612,7 +511,6 @@
         });
     }
 
-    // 📌 드래그 무빙 자바스크립트 모듈
     function initDraggable() {
         const el = document.getElementById("draggable-diary");
         const header = document.getElementById("draggable-diary-header");
