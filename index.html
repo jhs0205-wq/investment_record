@@ -78,7 +78,7 @@
 
         .val-up { color: var(--color-up); }
         .val-down { color: var(--color-down); }
-        .diff-text { font-size: 11px; display: block; font-weight: normal; margin-top: 2px; }
+        .diff-text { font-size: 11px; display: block; font-weight: normal; margin-top: 2px; line-height: 1.4; }
 
         .asset-overview {
             display: flex;
@@ -88,7 +88,6 @@
 
         .main-balance { font-size: 28px; font-weight: 800; color: var(--text-main); }
         
-        /* 📉 총자산 변동폭 라벨 디자인 */
         .asset-diff-badge {
             font-size: 13px;
             font-weight: 500;
@@ -123,7 +122,6 @@
         }
         textarea:focus { outline: none; border-color: var(--color-accent); }
 
-        /* 💡 나만의 주식 팁 컴포넌트 스타일 */
         .tip-textarea {
             height: 70px;
             background-color: #242428;
@@ -322,9 +320,9 @@
         <table id="stock-table">
             <thead>
                 <tr>
-                    <th style="width: 40%;">종목명 (보유액)</th>
-                    <th style="width: 25%; text-align: right;">현재가</th>
-                    <th style="width: 35%; text-align: right;">수익률 (전일대비 변동)</th>
+                    <th style="width: 38%;">종목명 (보유액)</th>
+                    <th style="width: 24%; text-align: right;">현재가</th>
+                    <th style="width: 38%; text-align: right;">수익률 (총 보유액 변동)</th>
                 </tr>
             </thead>
             <tbody id="stock-list">
@@ -405,7 +403,6 @@
 
         selectedDate = db[db.length - 1].date; 
         
-        // 💡 주식 팁 컴포넌트 데이터 불러오기 및 실시간 연동
         const tipArea = document.getElementById('custom-stock-tips');
         tipArea.value = localStorage.getItem('my_stock_trading_tips') || "";
         tipArea.oninput = function(e) {
@@ -481,7 +478,7 @@
         document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('lbl-diary-title').innerText = `📌 관점 기록장 (${selectedDate})`;
 
-        // 1. 관심 종목 테이블 동적 렌더링 (전일비 % 및 원화 변동액 연산 고도화)
+        // 1. 관심 종목 테이블 동적 렌더링
         const watchlistContainer = document.getElementById('watchlist-list');
         watchlistContainer.innerHTML = "";
         
@@ -522,15 +519,19 @@
             });
         }
 
-        // 2. 오버뷰 총액 및 총자산 전일 대비 변동폭(원화) 계산
+        // 2. 오버뷰 총액 및 총자산 전일 대비 총 감소/증가 금액 매핑
         document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
         
         const assetDiffEl = document.getElementById('txt-total-asset-diff');
         if (prevData) {
             const assetDiffValue = todayData.total_asset - prevData.total_asset;
             const assetDiffSign = assetDiffValue >= 0 ? "▲" : "▼";
-            assetDiffEl.innerText = `${assetDiffSign} 전일대비 ${Math.abs(assetDiffValue).toLocaleString()}원 (${(assetDiffValue >= 0 ? '+' : '') + ((assetDiffValue / prevData.total_asset) * 100).toFixed(2)}%)`;
-            assetDiffEl.className = `asset-diff-badge ${assetDiffValue >= 0 ? 'val-up' : 'val-down'}`;
+            const assetDiffClass = assetDiffValue >= 0 ? "val-up" : "val-down";
+            const assetDiffPercent = ((assetDiffValue / prevData.total_asset) * 100).toFixed(2);
+            
+            // 총자산이 총 얼마 빠졌는지 원화와 퍼센트로 가독성 높게 표시
+            assetDiffEl.innerText = `${assetDiffSign} 전일대비 ${Math.abs(assetDiffValue).toLocaleString()}원 (${assetDiffValue >= 0 ? '+' : ''}${assetDiffPercent}%)`;
+            assetDiffEl.className = `asset-diff-badge ${assetDiffClass}`;
         } else {
             assetDiffEl.innerText = "전일 데이터 없음";
             assetDiffEl.className = "asset-diff-badge";
@@ -555,7 +556,7 @@
         viewArea.value = localStorage.getItem(viewKey);
         viewArea.oninput = function(e) { localStorage.setItem(viewKey, e.target.value); };
 
-        // 4. 보유 자산 상세 렌더링 (수익률 변동 및 전일비 금액 하락폭 추가 연산)
+        // 4. 보유 자산 상세 렌더링 (★ 1주당 변동금액이 아닌 총 보유액 기준 증감 연산 처리 완료)
         const stockListContainer = document.getElementById('stock-list');
         stockListContainer.innerHTML = "";
         
@@ -570,12 +571,15 @@
                 const prevStock = prevData.stocks.find(s => s.name === stock.name);
                 if (prevStock) {
                     const rateDiff = stock.profit_rate - prevStock.profit_rate;
-                    const priceDiff = stock.current_price - prevStock.current_price;
                     
-                    const diffSign = rateDiff >= 0 ? "▲" : "▼";
-                    const diffClass = rateDiff >= 0 ? "val-up" : "val-down";
+                    // [수정 핵심식]: (오늘 현재가 * 오늘 수량) - (어제 현재가 * 어제 수량) = 내 계좌에서 변동된 총 보유액 원화
+                    const prevHoldingAmount = Math.round(prevStock.count * prevStock.current_price);
+                    const totalAmountDiff = holdingAmount - prevHoldingAmount;
                     
-                    diffHTML = `<span class="diff-text ${diffClass}" style="font-size:11px;">${diffSign} 전일비 ${Math.abs(rateDiff).toFixed(1)}% (${priceDiff >= 0 ? '+' : ''}${priceDiff.toLocaleString()}원)</span>`;
+                    const diffSign = totalAmountDiff >= 0 ? "▲" : "▼";
+                    const diffClass = totalAmountDiff >= 0 ? "val-up" : "val-down";
+                    
+                    diffHTML = `<span class="diff-text ${diffClass}" style="font-size:11px;">${diffSign} 전일비 ${rateDiff >= 0 ? '+' : ''}${rateDiff.toFixed(1)}% (${totalAmountDiff >= 0 ? '+' : ''}${totalAmountDiff.toLocaleString()}원)</span>`;
                 }
             }
 
