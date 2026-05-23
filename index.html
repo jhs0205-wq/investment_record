@@ -206,15 +206,17 @@
         }
         .diary-window-header { background-color: #141417; padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; cursor: move; user-select: none; border-bottom: 1px solid var(--border-subtle); }
 
-        /* 4페이지 저축 관리 스타일 */
+        /* 4페이지 고도화 레이아웃 스타일 */
         .saving-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .saving-card { background: rgba(0, 0, 0, 0.15); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px; }
-        .saving-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .saving-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .saving-name { font-size: 15px; font-weight: 700; color: var(--text-main); }
         .saving-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; background-color: rgba(0, 210, 213, 0.15); color: var(--color-saving); }
-        .saving-detail-item { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .saving-detail-item { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.03); }
+        .saving-detail-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .saving-detail-label { color: var(--text-sub); }
         .saving-detail-value { font-weight: 600; color: var(--text-main); }
+        .saving-total-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
     </style>
 </head>
 <body>
@@ -239,7 +241,7 @@
         </header>
 
         <div class="card" style="border-color: var(--color-tip); padding: 14px;">
-            <h3 style="color: var(--color-tip); margin-bottom: 8px;">💡 나만의 주식 매매 팁 & 원칙</h3>
+            <h3>💡 나만의 주식 매매 팁 & 원칙</h3>
             <textarea id="custom-stock-tips" style="height: 60px; background-color: #242428;" placeholder="자신만의 원칙을 적어두세요..."></textarea>
         </div>
 
@@ -356,7 +358,7 @@
         <header>
             <div>
                 <h1>4페이지: 군적금 & 청년도약계좌 관리</h1>
-                <div class="header-sub">목돈 마련을 위한 고금리 예적금 자산의 만기일과 납입 계획을 추적합니다.</div>
+                <div class="header-sub">목돈 마련 고금리 예적금 자산의 만기일, 납입 내역 및 최종 수령액을 추적합니다.</div>
             </div>
         </header>
 
@@ -374,12 +376,16 @@
                         <span class="saving-detail-value" style="color: var(--color-up);">월 550,000 원</span>
                     </div>
                     <div class="saving-detail-item">
-                        <span class="saving-detail-label">만기일 (전역 예정일)</span>
-                        <span class="saving-detail-value">2027년 7월 25일</span>
+                        <span class="saving-detail-label">총 납입 기간</span>
+                        <span class="saving-detail-value">18개월 (총 원금 9,900,000원)</span>
                     </div>
                     <div class="saving-detail-item">
-                        <span class="saving-detail-label">특징</span>
-                        <span class="saving-detail-value" style="font-weight: normal; color: var(--text-sub);">비과세 혜택 및 정부 매칭지원금 포함 최대 금리</span>
+                        <span class="saving-detail-label">만기일 (전역일)</span>
+                        <span class="saving-detail-value">2027년 7월 25일</span>
+                    </div>
+                    <div class="saving-total-row">
+                        <span class="saving-detail-label" style="font-weight: 700; color: var(--color-saving);">💰 만기 예상 수령액</span>
+                        <span class="saving-detail-value" style="font-size: 15px; color: var(--color-saving); font-weight: 800;">약 20,300,000 원</span>
                     </div>
                 </div>
 
@@ -393,12 +399,16 @@
                         <span class="saving-detail-value" style="color: var(--color-up);">월 700,000 원</span>
                     </div>
                     <div class="saving-detail-item">
+                        <span class="saving-detail-label">총 납입 기간</span>
+                        <span class="saving-detail-value">60개월 (총 원금 42,000,000원)</span>
+                    </div>
+                    <div class="saving-detail-item">
                         <span class="saving-detail-label">만기일</span>
                         <span class="saving-detail-value">2030년 9월 1일</span>
                     </div>
-                    <div class="saving-detail-item">
-                        <span class="saving-detail-label">특징</span>
-                        <span class="saving-detail-value" style="font-weight: normal; color: var(--text-sub);">정부 기여금 매칭 및 중도해지 정산 조건 확인 필수</span>
+                    <div class="saving-total-row">
+                        <span class="saving-detail-label" style="font-weight: 700; color: #a55eea;">💰 만기 예상 수령액</span>
+                        <span class="saving-detail-value" style="font-size: 15px; color: #a55eea; font-weight: 800;">약 50,000,000 원</span>
                     </div>
                 </div>
 
@@ -406,10 +416,10 @@
         </div>
 
         <div class="card" style="background-color: rgba(108, 92, 231, 0.05); border-color: var(--color-accent); margin-bottom: 60px;">
-            <h3 style="color: var(--text-main);">📅 자산 형성 타임라인 메모</h3>
+            <h3>📅 자산 형성 타임라인 메모</h3>
             <p style="font-size: 13px; color: var(--text-sub); line-height: 1.6; margin: 0;">
-                • <strong>2027년 7월</strong>: 군적금 만기 수령 후 투자 자산 시드머니로 전환 또는 도약계좌 연계 납입 검토.<br>
-                • <strong>2030년 9월</strong>: 청년도약계좌 만기 달성 (5,000만 원 상당의 중장기 목돈 완성 기점).
+                • <strong>2027년 7월</strong>: 군적금 만기 수령액 **약 2,030만 원** 확보 예정 ➔ 전역 후 대학교 복학 시드머니 또는 주식 투자 인프라 자금으로 즉시 전환 유연성 확보.<br>
+                • <strong>2030년 9월</strong>: 청년도약계좌 만기 달성 ➔ 원금 비과세 이자 및 기여금을 합산한 **약 5,000만 원**의 확정형 목돈 마련 성공 기점.
             </p>
         </div>
     </div>
@@ -569,27 +579,12 @@
             };
             row1.appendChild(btn);
         });
-
-        const row2 = document.createElement('div');
-        row2.className = 'btn-group-row';
-        ['1', '2', '3'].forEach(num => {
-            const btn = document.createElement('button');
-            btn.className = `rank-btn ${localStorage.getItem(rankKey) === num ? 'active' : ''}`;
-            btn.innerText = num;
-            btn.onclick = function() {
-                if(localStorage.getItem(rankKey) === num) localStorage.removeItem(rankKey);
-                else localStorage.setItem(rankKey, num);
-                updateDashboard();
-            };
-            row2.appendChild(btn);
-        });
-
         cell.appendChild(row1);
         return cell;
     }
 
     function openStockTrendModal(stockName) {
-        document.getElementById('pop-stock-title').innerText = `📊 ${stockName} 주가 추이 및 역사 기록`;
+        document.getElementById('pop-stock-title').innerText = `📊 ${stockName} 주가 추이`;
         const modal = document.getElementById('stock-modal-overlay');
         modal.style.display = 'flex';
 
@@ -622,18 +617,7 @@
         popChartInstance = new Chart(ctxPop, {
             type: 'line', plugins: [ChartDataLabels],
             data: { labels: trendData.map(t => t.date), datasets: [{ data: trendData.map(t => t.price), borderColor: '#ffb900', backgroundColor: 'rgba(255,185,0,0.04)', borderWidth: 2, tension: 0.15, fill: true, pointRadius: 4, pointBackgroundColor: '#ffb900' }] },
-            options: { 
-                maintainAspectRatio: false, 
-                layout: { padding: { top: 20, left: 15, right: 20, bottom: 5 } }, 
-                plugins: { 
-                    legend: { display: false }, 
-                    datalabels: { 
-                        display: true, align: 'top', color: '#ffb900', font: { size: 9, weight: '700' }, 
-                        formatter: function(v) { return (v/10000).toFixed(1) + "만"; } 
-                    } 
-                }, 
-                scales: { y: { display: false }, x: { grid: { display: false }, ticks: { font:{size:10} } } } 
-            }
+            options: { maintainAspectRatio: false, layout: { padding: { top: 20, left: 15, right: 20, bottom: 5 } }, plugins: { legend: { display: false }, datalabels: { display: true, align: 'top', color: '#ffb900', font: { size: 9, weight: '700' }, formatter: function(v) { return (v/10000).toFixed(1) + "만"; } } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { font:{size:10} } } } }
         });
     }
 
@@ -738,7 +722,7 @@
         feedbackBody.innerHTML = "";
 
         if (!prevData) {
-            feedbackBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-sub); padding:20px;">이전 날짜의 데이터셋이 부족하여 2페이지 복기 정렬을 생성할 수 없습니다.</td></tr>`;
+            feedbackBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-sub); padding:20px;">데이터가 부족합니다.</td></tr>`;
         } else {
             let combinedList = [];
             todayData.stocks.forEach(s => { combinedList.push({ name: s.name, rate: s.profit_rate, isWatchlist: false }); });
@@ -750,7 +734,6 @@
                         if (currentPrice < 2000) currentPrice = Math.round(currentPrice * USD_KRW_EXCHANGE_RATE);
                         let prevPrice = prevData.market_watchlist[key];
                         if (prevPrice && prevPrice < 2000) prevPrice = Math.round(prevPrice * USD_KRW_EXCHANGE_RATE);
-
                         let changeRate = prevPrice ? ((currentPrice - prevPrice) / prevPrice) * 100 : 0;
                         combinedList.push({ name: key, rate: changeRate, isWatchlist: true });
                     }
@@ -762,13 +745,8 @@
             combinedList.forEach(item => {
                 const tr = document.createElement('tr');
                 const prevDecisionKey = `decision_${item.name}_${prevData.date}`;
-                const prevRankKey = `rank_${item.name}_${prevData.date}`;
                 const savedDecision = localStorage.getItem(prevDecisionKey) || "미지정";
-                const savedRank = localStorage.getItem(prevRankKey) || "-";
-
                 let badgeHTML = `<span class="badge-view badge-${savedDecision}">${savedDecision === 'BUY'?'매수':savedDecision==='SELL'?'매도':savedDecision==='HOLD'?'보류':'의견없음'}</span>`;
-                if(savedRank !== "-") badgeHTML += ` <span class="badge-view badge-rank">${savedRank}순위</span>`;
-
                 const typeTag = item.isWatchlist ? `<span class="badge-view badge-watchlist">관심</span>` : "";
                 tr.innerHTML = `<td><strong>${item.name}</strong>${typeTag}</td><td class="profit-cell ${item.rate >= 0 ? 'val-up':'val-down'}">${item.rate >= 0 ? '+':''}${item.rate.toFixed(1)}%</td><td style="text-align: right;">${badgeHTML}</td>`;
                 feedbackBody.appendChild(tr);
@@ -780,7 +758,7 @@
             "extracted_date": selectedDate,
             "core_principles": localStorage.getItem('my_stock_trading_tips') || "미입력",
             "portfolio_summary": { "total_net_asset": todayData.total_asset, "invested_principal": todayData.principal, "cumulative_profit_rate": todayData.total_profit_rate, "market_log": localStorage.getItem(`market_view_${todayData.date}`) || "미입력" },
-            "individual_asset_records": todayData.stocks.map(s => { return { "stock_name": s.name, "quantity": s.count, "closing_price": s.current_price, "profit_percentage": s.profit_rate, "user_decision_today": localStorage.getItem(`decision_${s.name}_${todayData.date}`) || "NONE", "user_priority_today": localStorage.getItem(`rank_${s.name}_${todayData.date}`) || "NONE" }; }),
+            "individual_asset_records": todayData.stocks.map(s => { return { "stock_name": s.name, "quantity": s.count, "closing_price": s.current_price, "profit_percentage": s.profit_rate, "user_decision_today": localStorage.getItem(`decision_${s.name}_${todayData.date}`) || "NONE" }; }),
             "market_indices_snapshot": todayData.market_watchlist || {}
         };
         document.getElementById('gemini-export-area').value = JSON.stringify(exportPack, null, 2);
@@ -793,9 +771,7 @@
         let pieLabels = []; let pieValues = []; let totalHoldingsSum = 0;
         todayData.stocks.forEach(s => {
             const amt = Math.round(s.count * s.current_price);
-            if(amt > 1000) { 
-                pieLabels.push(s.name); pieValues.push(amt); totalHoldingsSum += amt;
-            }
+            if(amt > 1000) { pieLabels.push(s.name); pieValues.push(amt); totalHoldingsSum += amt; }
         });
 
         pieChartInstance = new Chart(ctxPie, {
