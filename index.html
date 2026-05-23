@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Portfolio 3-Page Dashboard</title>
+    <title>Advanced Portfolio 4-Page Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
@@ -20,6 +20,7 @@
             --color-accent: #6c5ce7;
             --color-tip: #ffb900;
             --color-hold: #1dd1a1;
+            --color-saving: #00d2d3;
         }
 
         body {
@@ -46,6 +47,7 @@
             margin-bottom: 20px;
             border: 1px solid var(--border-subtle);
             gap: 2px;
+            overflow-x: auto;
         }
         .tab-btn {
             flex: 1;
@@ -53,7 +55,7 @@
             border: none;
             color: var(--text-sub);
             padding: 10px 4px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             border-radius: 8px;
@@ -113,8 +115,8 @@
         .val-down { color: var(--color-down); }
         .diff-text { font-size: 11px; display: block; font-weight: normal; margin-top: 2px; }
 
-        .main-balance { font-size: 26px; font-weight: 800; color: var(--text-main); }
-        .asset-diff-badge { font-size: 12px; font-weight: 500; margin-top: -2px; display: flex; align-items: center; gap: 4px; }
+        .main-balance { font-size: 28px; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
+        .asset-diff-badge { font-size: 13px; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 
         .sub-balance-group {
             display: grid;
@@ -123,7 +125,7 @@
             padding-top: 12px;
             border-top: 1px solid var(--border-subtle);
         }
-        .balance-value { font-size: 14px; font-weight: 600; }
+        .balance-value { font-size: 15px; font-weight: 600; }
 
         textarea {
             width: 100%;
@@ -166,7 +168,6 @@
         }
         .rank-btn.active { background-color: var(--color-tip); color: #000; border-color: var(--color-tip); font-weight: 700; }
 
-        /* 📊 종목 그래프 모달 팝업창 스타일 */
         .btn-chart-pop {
             background: none; border: none; font-size: 12px; cursor: pointer; padding: 2px 4px; margin-left: 4px; opacity: 0.6; transition: opacity 0.2s;
         }
@@ -204,22 +205,33 @@
             z-index: 1000; display: none; overflow: hidden;
         }
         .diary-window-header { background-color: #141417; padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; cursor: move; user-select: none; border-bottom: 1px solid var(--border-subtle); }
+
+        /* 4페이지 저축 관리 스타일 */
+        .saving-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .saving-card { background: rgba(0, 0, 0, 0.15); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px; }
+        .saving-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .saving-name { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .saving-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; background-color: rgba(0, 210, 213, 0.15); color: var(--color-saving); }
+        .saving-detail-item { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .saving-detail-label { color: var(--text-sub); }
+        .saving-detail-value { font-weight: 600; color: var(--text-main); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="page-tabs">
-        <button class="tab-btn active" onclick="switchPage('page1', this)">1페이지: 대시보드 입력</button>
-        <button class="tab-btn" onclick="switchPage('page2', this)">2페이지: 복기 및 추출</button>
-        <button class="tab-btn" onclick="switchPage('page3', this)">3페이지: 그래프 및 통계</button>
+        <button class="tab-btn active" onclick="switchPage('page1', this)">1p: 대시보드 입력</button>
+        <button class="tab-btn" onclick="switchPage('page2', this)">2p: 복기 및 추출</button>
+        <button class="tab-btn" onclick="switchPage('page3', this)">3p: 그래프 및 통계</button>
+        <button class="tab-btn" onclick="switchPage('page4', this)">4p: 군적금 & 도약계좌</button>
     </div>
 
     <div id="page1" class="page-content active">
         <header>
             <div>
-                <h1>나의 투자 관리 대시보드</h1>
-                <div class="header-sub">매일의 자산 변동과 판단 조작, 매매 원칙을 트래킹합니다.</div>
+                <h1>나의 투자 관리 제어판</h1>
+                <div class="header-sub">불필요한 지표를 제외하고 당일 판단 조작에만 집중합니다.</div>
             </div>
             <div>
                 <select class="select-date" id="history-date-select" onchange="changeDisplayDate(this.value)"></select>
@@ -227,7 +239,7 @@
         </header>
 
         <div class="card" style="border-color: var(--color-tip); padding: 14px;">
-            <h3 style="color: var(--color-tip); margin-bottom: 6px;">💡 나만의 주식 매매 팁 & 원칙</h3>
+            <h3 style="color: var(--color-tip); margin-bottom: 8px;">💡 나만의 주식 매매 팁 & 원칙</h3>
             <textarea id="custom-stock-tips" style="height: 60px; background-color: #242428;" placeholder="자신만의 원칙을 적어두세요..."></textarea>
         </div>
 
@@ -250,18 +262,6 @@
                 </thead>
                 <tbody id="watchlist-list"></tbody>
             </table>
-        </div>
-
-        <div class="card">
-            <h3>📈 자산 현황 Overview</h3>
-            <div class="asset-overview">
-                <div class="main-balance" id="txt-total-asset">0원</div>
-                <div id="txt-total-asset-diff" class="asset-diff-badge"></div>
-                <div class="sub-balance-group">
-                    <div class="balance-item"><span class="balance-label">원금</span><span class="balance-value" id="txt-principal">0원</span></div>
-                    <div class="balance-item"><span class="balance-label">총 수익률</span><span class="balance-value" id="txt-total-profit-rate">0%</span></div>
-                </div>
-            </div>
         </div>
 
         <div class="card" style="margin-bottom: 50px; padding: 14px;">
@@ -314,12 +314,31 @@
         <header>
             <div>
                 <h1>3페이지: 자산 추이 그래프 및 통계 룸</h1>
-                <div class="header-sub">누적 자산 데이터의 우상향 흐름과 수익률을 입체적으로 시각화합니다.</div>
+                <div class="header-sub">누적 자산 데이터와 포트폴리오 종목별 비중 분포를 관리합니다.</div>
             </div>
         </header>
 
+        <div class="card" style="border-color: var(--color-accent);">
+            <h3>📈 <span id="lbl-dashboard-date" style="color: var(--text-main);">자산 현황 Overview</span></h3>
+            <div class="asset-overview">
+                <div class="main-balance" id="txt-total-asset">0원</div>
+                <div id="txt-total-asset-diff" class="asset-diff-badge"></div>
+                <div class="sub-balance-group">
+                    <div class="balance-item"><span class="balance-label">원금</span><span class="balance-value" id="txt-principal">0원</span></div>
+                    <div class="balance-item"><span class="balance-label">총 수익률</span><span class="balance-value" id="txt-total-profit-rate">0%</span></div>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
-            <h3>📊 총자산 추이 비교 (숫자 금액 표시)</h3>
+            <h3>🍕 전체 자산별 보유 주식 종목 비중 분포</h3>
+            <div class="chart-container" style="height: 230px;">
+                <canvas id="stockWeightPieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 총자산 추이 비교 (만 원 단위 금액 표시)</h3>
             <div class="chart-container">
                 <canvas id="assetHistoryChart"></canvas>
             </div>
@@ -332,6 +351,69 @@
             </div>
         </div>
     </div>
+
+    <div id="page4" class="page-content">
+        <header>
+            <div>
+                <h1>4페이지: 군적금 & 청년도약계좌 관리</h1>
+                <div class="header-sub">목돈 마련을 위한 고금리 예적금 자산의 만기일과 납입 계획을 추적합니다.</div>
+            </div>
+        </header>
+
+        <div class="card" style="border-color: var(--color-saving);">
+            <h3>🔒 장기 목돈 마련 고정 예적금 현황</h3>
+            <div class="saving-grid">
+                
+                <div class="saving-card">
+                    <div class="saving-title-row">
+                        <span class="saving-name">🪖 장병내일준비적금 (군적금)</span>
+                        <span class="saving-badge">전역일 만기</span>
+                    </div>
+                    <div class="saving-detail-item">
+                        <span class="saving-detail-label">월 납입액</span>
+                        <span class="saving-detail-value" style="color: var(--color-up);">월 550,000 원</span>
+                    </div>
+                    <div class="saving-detail-item">
+                        <span class="saving-detail-label">만기일 (전역 예정일)</span>
+                        <span class="saving-detail-value">2027년 7월 25일</span>
+                    </div>
+                    <div class="saving-detail-item">
+                        <span class="saving-detail-label">특징</span>
+                        <span class="saving-detail-value" style="font-weight: normal; color: var(--text-sub);">비과세 혜택 및 정부 매칭지원금 포함 최대 금리</span>
+                    </div>
+                </div>
+
+                <div class="saving-card">
+                    <div class="saving-title-row">
+                        <span class="saving-name">🌱 청년도약계좌</span>
+                        <span class="saving-badge" style="background-color: rgba(108, 92, 231, 0.15); color: #a55eea;">5년 만기</span>
+                    </div>
+                    <div class="saving-detail-item">
+                        <span class="saving-detail-label">월 납입액</span>
+                        <span class="saving-detail-value" style="color: var(--color-up);">월 700,000 원</span>
+                    </div>
+                    <div class="saving-detail-item">
+                        <span class="saving-detail-label">만기일</span>
+                        <span class="saving-detail-value">2030년 9월 1일</span>
+                    </div>
+                    <div class="saving-detail-item">
+                        <span class="saving-detail-label">특징</span>
+                        <span class="saving-detail-value" style="font-weight: normal; color: var(--text-sub);">정부 기여금 매칭 및 중도해지 정산 조건 확인 필수</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card" style="background-color: rgba(108, 92, 231, 0.05); border-color: var(--color-accent); margin-bottom: 60px;">
+            <h3 style="color: var(--text-main);">📅 자산 형성 타임라인 메모</h3>
+            <p style="font-size: 13px; color: var(--text-sub); line-height: 1.6; margin: 0;">
+                • <strong>2027년 7월</strong>: 군적금 만기 수령 후 투자 자산 시드머니로 전환 또는 도약계좌 연계 납입 검토.<br>
+                • <strong>2030년 9월</strong>: 청년도약계좌 만기 달성 (5,000만 원 상당의 중장기 목돈 완성 기점).
+            </p>
+        </div>
+    </div>
+
 </div>
 
 <div class="modal-overlay" id="stock-modal-overlay" onclick="closeStockModal(event)">
@@ -348,8 +430,8 @@
                 <thead>
                     <tr>
                         <th>날짜</th>
-                        <th style="text-align:right;">마감 주가(원화 환산)</th>
-                        <th style="text-align:right;">당일 수익/변동</th>
+                        <th style="text-align:right;">마감 주가</th>
+                        <th style="text-align:right;">당일 변동/수익</th>
                     </tr>
                 </thead>
                 <tbody id="pop-stock-table-body"></tbody>
@@ -361,14 +443,15 @@
 <button class="floating-diary-trigger" onclick="toggleDiaryWindow()"><span>📝</span> 일지 작성</button>
 <div class="floating-diary-window" id="draggable-diary">
     <div class="diary-window-header" id="draggable-diary-header"><span>📌 관점 기록장</span><button style="background:none; border:none; color:var(--text-sub); cursor:pointer; font-size:16px;" onclick="toggleDiaryWindow()">×</button></div>
-    <div class="diary-window-body"><textarea id="market-view" style="height: 220px; background-color: #141417("></textarea></div>
+    <div class="diary-window-body"><textarea id="market-view" style="height: 220px; background-color: #141417;"></textarea></div>
 </div>
 
 <script>
     let db = JSON.parse(localStorage.getItem('portfolio_db')) || [];
     let assetChartInstance = null;
     let stockChartInstance = null;
-    let popChartInstance = null; // 모달창 내부 팝업 그래프 인스턴스 보관함
+    let pieChartInstance = null; 
+    let popChartInstance = null; 
     let selectedDate = ""; 
 
     const USD_KRW_EXCHANGE_RATE = 1380;
@@ -502,97 +585,54 @@
         });
 
         cell.appendChild(row1);
-        cell.appendChild(row2);
         return cell;
     }
 
-    // 📦 [신규 핵심 엔진]: 특정 종목의 날짜별 시계열 가격을 추출해 미니 그래프 팝업창을 띄우는 함수
     function openStockTrendModal(stockName) {
         document.getElementById('pop-stock-title').innerText = `📊 ${stockName} 주가 추이 및 역사 기록`;
         const modal = document.getElementById('stock-modal-overlay');
         modal.style.display = 'flex';
 
-        // 해당 종목의 전 날짜별 가격 데이터 수집
         let trendData = [];
         db.forEach((dayData, index) => {
-            let price = 0;
-            let profitOrChange = 0;
-            let isWatch = false;
-
-            // 1. 보유 종목 리스트 스캔
+            let price = 0; let profitOrChange = 0; let isWatch = false;
             const sFound = dayData.stocks.find(s => s.name === stockName);
-            if (sFound) {
-                price = sFound.current_price;
-                profitOrChange = sFound.profit_rate;
-            } else if (dayData.market_watchlist && dayData.market_watchlist[stockName]) {
-                // 2. 관심 종목 리스트 스캔
-                price = dayData.market_watchlist[stockName];
-                isWatch = true;
+            if (sFound) { price = sFound.current_price; profitOrChange = sFound.profit_rate; }
+            else if (dayData.market_watchlist && dayData.market_watchlist[stockName]) {
+                price = dayData.market_watchlist[stockName]; isWatch = true;
                 if (price < 2000) price = Math.round(price * USD_KRW_EXCHANGE_RATE);
-
-                // 관심종목 당일 변동률 추적 연산
                 if (index > 0 && db[index-1].market_watchlist && db[index-1].market_watchlist[stockName]) {
                     let prevP = db[index-1].market_watchlist[stockName];
                     if (prevP < 2000) prevP = Math.round(prevP * USD_KRW_EXCHANGE_RATE);
                     profitOrChange = ((price - prevP) / prevP) * 100;
                 }
             }
-
-            if (price > 0) {
-                trendData.push({
-                    date: dayData.date.split('-').slice(1).join('.'), // MM.DD 포맷화
-                    price: price,
-                    rate: profitOrChange,
-                    isWatch: isWatch
-                });
-            }
+            if (price > 0) trendData.push({ date: dayData.date.split('-').slice(1).join('.'), price: price, rate: profitOrChange, isWatch: isWatch });
         });
 
-        // 하단 미니 데이터 테이블 마운트
-        const tBody = document.getElementById('pop-stock-table-body');
-        tBody.innerHTML = "";
+        const tBody = document.getElementById('pop-stock-table-body'); tBody.innerHTML = "";
         [...trendData].reverse().forEach(t => {
             const tr = document.createElement('tr');
-            const rateClass = t.rate >= 0 ? 'val-up' : 'val-down';
-            const rateLabel = t.isWatch ? '변동' : '수익';
-            tr.innerHTML = `
-                <td>${t.date}</td>
-                <td class="price-cell">${t.price.toLocaleString()}원</td>
-                <td class="profit-cell ${rateClass}">${t.rate >= 0 ? '+':''}${t.rate.toFixed(1)}%</td>
-            `;
+            tr.innerHTML = `<td>${t.date}</td><td class="price-cell">${t.price.toLocaleString()}원</td><td class="profit-cell ${t.rate >= 0 ? 'val-up':'val-down'}">${t.rate >= 0 ? '+':''}${t.rate.toFixed(1)}%</td>`;
             tBody.appendChild(tr);
         });
 
-        // 팝업 내부 시계열 선형 그래프 그리기 (Chart.js 복제)
         const ctxPop = document.getElementById('popStockLineChart').getContext('2d');
         if(popChartInstance) popChartInstance.destroy();
         popChartInstance = new Chart(ctxPop, {
-            type: 'line',
-            plugins: [ChartDataLabels],
-            data: {
-                labels: trendData.map(t => t.date),
-                datasets: [{
-                    data: trendData.map(t => t.price),
-                    borderColor: '#ffb900',
-                    backgroundColor: 'rgba(255,185,0,0.04)',
-                    borderWidth: 2,
-                    tension: 0.15,
-                    fill: true,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#ffb900'
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                layout: { padding: { top: 20, left: 10, right: 15, bottom: 5 } },
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        display: true, align: 'top', color: '#ffb900', font: { size: 9, weight: '700' },
-                        formatter: function(v) { return Math.round(v/1000).toLocaleString() + "천"; }
-                    }
-                },
-                scales: { y: { display: false }, x: { grid: { display: false }, ticks: { font:{size:10} } } }
+            type: 'line', plugins: [ChartDataLabels],
+            data: { labels: trendData.map(t => t.date), datasets: [{ data: trendData.map(t => t.price), borderColor: '#ffb900', backgroundColor: 'rgba(255,185,0,0.04)', borderWidth: 2, tension: 0.15, fill: true, pointRadius: 4, pointBackgroundColor: '#ffb900' }] },
+            options: { 
+                maintainAspectRatio: false, 
+                layout: { padding: { top: 20, left: 15, right: 20, bottom: 5 } }, 
+                plugins: { 
+                    legend: { display: false }, 
+                    datalabels: { 
+                        display: true, align: 'top', color: '#ffb900', font: { size: 9, weight: '700' }, 
+                        formatter: function(v) { return (v/10000).toFixed(1) + "만"; } 
+                    } 
+                }, 
+                scales: { y: { display: false }, x: { grid: { display: false }, ticks: { font:{size:10} } } } 
             }
         });
     }
@@ -626,10 +666,7 @@
                     changeText = `${priceDiff >= 0 ? "▲" : "▼"} ${Math.abs(changeRate).toFixed(1)}% (${isIndex ? priceDiff.toFixed(2) : Math.abs(priceDiff).toLocaleString() + '원'})`;
                     changeClass = priceDiff >= 0 ? "val-up" : "val-down";
                 }
-
-                // 📊 [수정] 자산명 옆에 트렌드 팝업용 미니 그래프 표 표식 버튼 장착
                 const popBtnHTML = isIndex ? '' : `<button class="btn-chart-pop" onclick="openStockTrendModal('${key}')">📊</button>`;
-
                 tr.innerHTML = `<td><strong>${key}</strong>${popBtnHTML}</td><td class="price-cell">${currentPrice.toLocaleString()}${isIndex?'':' 원'}</td><td class="profit-cell ${changeClass}">${changeText}</td>`;
                 
                 const tdAction = document.createElement('td');
@@ -639,6 +676,7 @@
             });
         }
 
+        document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
         const assetDiffEl = document.getElementById('txt-total-asset-diff');
         if (prevData) {
@@ -678,10 +716,7 @@
                     diffHTML = `<span class="diff-text ${totalAmountDiff >= 0 ? 'val-up' : 'val-down'}">${totalAmountDiff >= 0 ? '▲' : '▼'} 전일비 ${rateDiff >= 0 ? '+' : ''}${rateDiff.toFixed(1)}% (${totalAmountDiff >= 0 ? '+' : ''}${totalAmountDiff.toLocaleString()}원)</span>`;
                 }
             }
-
-            // 📊 [수정] 자산명 옆에 트렌드 팝업용 미니 그래프 표 표식 버튼 보유종목에도 장착
             const popBtnHTML = `<button class="btn-chart-pop" onclick="openStockTrendModal('${stock.name}')">📊</button>`;
-
             tr.innerHTML = `<td><div class="stock-info-block"><div><strong>${stock.name}</strong>${popBtnHTML}</div><div class="stock-holding-amount">보유액: ${holdingAmount.toLocaleString()}원</div></div></td><td class="price-cell">${stock.current_price.toLocaleString()}원</td><td class="profit-cell ${rateClass}"><span>${stock.profit_rate >= 0 ? "+" : ""}${stock.profit_rate}%</span>${diffHTML}</td>`;
             
             const tdAction = document.createElement('td');
@@ -735,14 +770,13 @@
                 if(savedRank !== "-") badgeHTML += ` <span class="badge-view badge-rank">${savedRank}순위</span>`;
 
                 const typeTag = item.isWatchlist ? `<span class="badge-view badge-watchlist">관심</span>` : "";
-
                 tr.innerHTML = `<td><strong>${item.name}</strong>${typeTag}</td><td class="profit-cell ${item.rate >= 0 ? 'val-up':'val-down'}">${item.rate >= 0 ? '+':''}${item.rate.toFixed(1)}%</td><td style="text-align: right;">${badgeHTML}</td>`;
                 feedbackBody.appendChild(tr);
             });
         }
 
         const exportPack = {
-            "evaluation_profile": "Jeong Han-seo's Trading Portfolio Assessment",
+            "evaluation_profile": "Trading Portfolio Assessment",
             "extracted_date": selectedDate,
             "core_principles": localStorage.getItem('my_stock_trading_tips') || "미입력",
             "portfolio_summary": { "total_net_asset": todayData.total_asset, "invested_principal": todayData.principal, "cumulative_profit_rate": todayData.total_profit_rate, "market_log": localStorage.getItem(`market_view_${todayData.date}`) || "미입력" },
@@ -753,22 +787,37 @@
     }
 
     function buildCharts(todayData) {
+        const ctxPie = document.getElementById('stockWeightPieChart').getContext('2d');
+        if(pieChartInstance) pieChartInstance.destroy();
+
+        let pieLabels = []; let pieValues = []; let totalHoldingsSum = 0;
+        todayData.stocks.forEach(s => {
+            const amt = Math.round(s.count * s.current_price);
+            if(amt > 1000) { 
+                pieLabels.push(s.name); pieValues.push(amt); totalHoldingsSum += amt;
+            }
+        });
+
+        pieChartInstance = new Chart(ctxPie, {
+            type: 'doughnut', plugins: [ChartDataLabels],
+            data: { labels: pieLabels, datasets: [{ data: pieValues, backgroundColor: ['#ff5e67', '#4da6ff', '#6c5ce7', '#ffb900', '#1dd1a1', '#ff9f43', '#00d2d3', '#54a0ff'], borderWidth: 2, borderColor: '#1e1e22' }] },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'right', labels: { color: '#f0f0f3', font: { size: 11 }, boxWidth: 10 } },
+                    datalabels: { display: true, color: '#ffffff', font: { weight: '700', size: 10 }, formatter: function(value) { return ((value / totalHoldingsSum) * 100).toFixed(1) + '%'; } }
+                }
+            }
+        });
+
         const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d');
         if(assetChartInstance) assetChartInstance.destroy();
         assetChartInstance = new Chart(ctxHistory, {
-            type: 'line',
-            plugins: [ChartDataLabels], 
+            type: 'line', plugins: [ChartDataLabels], 
             data: { labels: db.map(d => d.date.split('-').slice(1).join('.')), datasets: [{ data: db.map(d => d.total_asset), borderColor: '#6c5ce7', backgroundColor: 'rgba(108, 92, 231, 0.06)', borderWidth: 2.5, tension: 0.25, fill: true }] },
             options: {
-                maintainAspectRatio: false,
-                layout: { padding: { top: 22, left: 10, right: 15 } },
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        display: true, align: 'top', anchor: 'end', color: '#6c5ce7', font: { size: 10, weight: '700' },
-                        formatter: function(value) { return (Math.round(value / 10000)).toLocaleString() + "만"; }
-                    }
-                },
+                maintainAspectRatio: false, layout: { padding: { top: 22, left: 10, right: 15 } },
+                plugins: { legend: { display: false }, datalabels: { display: true, align: 'top', anchor: 'end', color: '#6c5ce7', font: { size: 10, weight: '700' }, formatter: function(value) { return (Math.round(value / 10000)).toLocaleString() + "만"; } } },
                 scales: { y: { display: false }, x: { grid: { display: false } } }
             }
         });
@@ -782,6 +831,11 @@
                 plugins: { legend: { display: false }, datalabels: { display: true, align: 'end', anchor: 'end', color: '#f0f0f3', font: { size: 10, weight: '600' }, formatter: function(v) { return (v > 0 ? '+' : '') + v.toFixed(1) + '%'; } } }
             }
         });
+    }
+
+    function toggleDiaryWindow() {
+        const diary = document.getElementById('draggable-diary');
+        diary.style.display = (diary.style.display === 'block') ? 'none' : 'block';
     }
 
     function initDraggable() {
