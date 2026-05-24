@@ -114,9 +114,9 @@
             <textarea id="custom-stock-tips" style="height: 50px; background-color: #242428;" placeholder="자신만의 원칙을 적어두세요..."></textarea>
         </div>
 
-        <div class="card" style="border-color: var(--color-accent); position: relative;">
+        <div class="card" style="border-color: var(--color-accent);">
             <h3>📥 Gem 추출 데이터 복붙함</h3>
-            <textarea id="json-paste-box" style="height: 60px; font-family: monospace;" placeholder="여기에 복사한 순수 JSON 코드를 정확히 붙여넣어 주세요."></textarea>
+            <textarea id="json-paste-box" style="height: 50px; font-family: monospace;" placeholder="Gem이 준 데이터를 여기에 붙여넣으세요."></textarea>
             <button class="btn-remote" style="background-color: var(--color-accent); width:100%; margin-top:8px; color:white;" onclick="applyGemData()">데이터 즉시 적용 및 변환하기</button>
         </div>
 
@@ -166,11 +166,10 @@
     <div id="page2" class="page-content">
         <header>
             <div>
-                <h1>2페이지: 피드백 및 AI 연동 백오피스</h1>
+                <h1>2페이지: AI 연동 백오피스</h1>
                 <div class="header-sub">보유 종목과 관심 종목을 통합 정렬하여 전날의 판단을 복기합니다.</div>
             </div>
         </header>
-
         <div class="card" style="padding: 14px; border-color: var(--color-hold);">
             <h3>🎯 익일 수익률 정렬 순위 및 전날 투자 판단 대조표</h3>
             <table style="margin-top: 6px;">
@@ -184,10 +183,9 @@
                 <tbody id="feedback-sort-list"></tbody>
             </table>
         </div>
-
         <div class="card" style="border-color: #9b59b6; padding:16px;">
             <h3>🔌 대시보드 전체 누적 데이터 서버 이전 보드</h3>
-            <textarea id="gemini-export-area" style="height: 90px; font-family: monospace; background-color:#111; border-color:#444;" readonly placeholder="마스터 백업 추출 및 전체 주입용 보드" onclick="this.select()"></textarea>
+            <textarea id="gemini-export-area" style="height: 90px; font-family: monospace; background-color:#111; border-color:#444;" readonly placeholder="마스터 백업 추출 보드" onclick="this.select()"></textarea>
             <div class="remote-io-group">
                 <button class="btn-remote" onclick="exportAllDashboardData()">📋 전체 데이터 마스터 코드 추출</button>
                 <button class="btn-remote" style="color: var(--color-saving); border-color: var(--color-saving);" onclick="importAllDashboardData()">🔌 마스터 코드로 전체 데이터 원격 복원</button>
@@ -205,10 +203,10 @@
         <div class="card" style="border-color: var(--color-accent);">
             <h3>📈 <span id="lbl-dashboard-date" style="color: var(--text-main);">자산 현황 Overview</span></h3>
             <div class="asset-overview">
-                <div class="main-balance" id="txt-total-asset" style="font-weight: 800;">0원</div>
+                <div class="main-balance" id="txt-total-asset" style="font-size:28px; font-weight:800;">0원</div>
                 <div id="txt-total-asset-diff" class="asset-diff-badge"></div>
                 <div class="sub-balance-group">
-                    <div class="balance-item"><span class="balance-label" style="color: var(--text-sub);">원금 : </span><span class="balance-value" id="txt-principal" style="color: var(--text-main);">0원</span></div>
+                    <div class="balance-item"><span class="balance-label" style="color: var(--text-sub);">원금 : </span><span class="balance-value" id="txt-principal" style="color:var(--text-main);">0원</span></div>
                     <div class="balance-item"><span class="balance-label" style="color: var(--text-sub);">총 수익률 : </span><span class="balance-value" id="txt-total-profit-rate">0%</span></div>
                 </div>
             </div>
@@ -230,8 +228,8 @@
     <div id="page4" class="page-content">
         <header>
             <div>
-                <h1>4페이지: 자산 보관소 & 매크로 일정</h1>
-                <div class="header-sub">목돈 마련 고금리 예적금 자산의 납입 내역 및 최종 수령액을 추적합니다.</div>
+                <h1>4페이지: 장기 예적금 자산 보관소</h1>
+                <div class="header-sub">목돈 마련 자산 납입 고도화 내역 및 핵심 거시 경제 일정을 추적합니다.</div>
             </div>
         </header>
         <div class="card" style="border-color: var(--color-saving);">
@@ -245,7 +243,7 @@
                     <div class="saving-total-row"><span class="saving-detail-label" style="font-weight: 700; color: var(--color-saving);">💰 만기 예상 수령액</span><span class="saving-detail-value" style="font-size: 15px; color: var(--color-saving); font-weight: 800;">약 20,300,000 원</span></div>
                 </div>
                 <div class="saving-card">
-                    <div class="saving-title-row"><span class="saving-name">🌱 청년도약계좌</span><span class="saving-badge" style="background-color: rgba(108, 92, 231, 0.15); color: #a55eea;">5년 만기</span></div>
+                    <div class="saving-title-row"><span class="saving-name">🌱 청년도약계좌</span><span class="saving-badge">5년 만기</span></div>
                     <div class="saving-detail-item"><span class="saving-detail-label">월 납입액</span><span class="saving-detail-value" style="color: var(--color-up);">월 700,000 원</span></div>
                     <div class="saving-detail-item"><span class="saving-detail-label">총 납입 기간</span><span class="saving-detail-value">60개월 (총 원금 42,000,000원)</span></div>
                     <div class="saving-detail-item"><span class="saving-detail-label">만기일</span><span class="saving-detail-value">2030년 9월 1일</span></div>
@@ -300,11 +298,11 @@
     <div class="diary-window-header"><span id="lbl-diary-header">📌 오늘자 복기 일지 작성</span><button style="background:none; border:none; color:var(--text-sub); cursor:pointer; font-size:16px;" onclick="toggleDiaryWindow()">×</button></div>
     <div class="diary-window-body" style="padding: 12px;">
         <span class="diary-section-label">📋 1. 보유 종목 관점</span>
-        <textarea id="diary-holding" style="height: 65px; background-color: #141417; margin-bottom: 8px;" placeholder="보유 종목 관점..."></textarea>
+        <textarea id="diary-holding" style="height: 65px; background-color: #141417; margin-bottom: 8px;" placeholder="보유 자산 포지션 기록..."></textarea>
         <span class="diary-section-label">👀 2. 관심 종목 관점</span>
-        <textarea id="diary-watching" style="height: 65px; background-color: #141417; margin-bottom: 8px;" placeholder="관심 종목 관점..."></textarea>
+        <textarea id="diary-watching" style="height: 65px; background-color: #141417; margin-bottom: 8px;" placeholder="진입 찬스 스캔 기록..."></textarea>
         <span class="diary-section-label">🌐 3. 시장에 대한 견해 (시황)</span>
-        <textarea id="diary-market" style="height: 65px; background-color: #141417;" placeholder="시황 관점..."></textarea>
+        <textarea id="diary-market" style="height: 65px; background-color: #141417;" placeholder="거시 경제 지표 분석 기록..."></textarea>
     </div>
 </div>
 
@@ -368,25 +366,25 @@
 
     function changeDisplayDate(dateStr) { selectedDate = dateStr; updateDashboard(); }
 
-    // 🛠️ [진공 청소 가공 엔진]: 긁어올 때 섞여 들어간 HTML 태그나 유령 문자를 완벽히 정제 후 순수 JSON만 강제 추출
+    // 🛠️ [해결 처리 완료]: 들어오는 텍스트 덩어리에서 순수 JSON 기호만 자르고 유령문자를 소멸시키는 정제 알고리즘
     function applyGemData() {
         let rawText = document.getElementById('json-paste-box').value.trim();
         if(!rawText) return;
         
         try {
-            // 1. 앞뒤에 실수로 HTML 태그나 껍데기가 붙어있을 경우 자르고 순수 { } 매칭 구조만 추출
-            const startBrace = rawText.indexOf('{');
-            const endBrace = rawText.lastIndexOf('}');
-            if(startBrace !== -1 && endBrace !== -1 && endBrace > startBrace) {
-                rawText = rawText.substring(startBrace, endBrace + 1);
+            // HTML 코드나 타 오타 껍데기가 붙어있을 때 중괄호 핵심부만 도려내기
+            const startIdx = rawText.indexOf('{');
+            const endIdx = rawText.lastIndexOf('}');
+            if(startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+                rawText = rawText.substring(startIdx, endIdx + 1);
             }
 
-            // 2. 모바일 특수 투명 공백문자 전면 파괴 처리
+            // 모바일 유령 공백 인코딩 부호 파쇄
             rawText = rawText.replace(/[\u200B-\u200D\uFEFF]/g, '');
             rawText = rawText.replace(/\s+/g, ' ').trim();
 
             const newData = JSON.parse(rawText);
-            if(!newData.date) { alert("날짜가 식별되지 않는 규격입니다."); return; }
+            if(!newData.date) { alert("유효한 금융 날짜 포인터가 확인되지 않습니다."); return; }
 
             const existingIndex = db.findIndex(item => item.date === newData.date);
             if (existingIndex !== -1) db[existingIndex] = newData;
@@ -396,10 +394,11 @@
             localStorage.setItem('portfolio_db', JSON.stringify(db));
             selectedDate = newData.date;
             document.getElementById('json-paste-box').value = "";
-            initDateSelector(); updateDashboard();
-            alert(`${newData.date} 자산 동기화 스냅샷이 정상 주입되었습니다!`);
+            initDateSelector(); 
+            updateDashboard();
+            alert(`${newData.date} 투자 가치 스냅샷이 대시보드 코어 엔진에 성공적으로 주입되었습니다! 3페이지에서 총자산을 확인해 보세요.`);
         } catch(e) { 
-            alert("JSON 파싱 차단: 입력 상자 안에 주식 데이터가 아닌 HTML 사이트 소스 코드나 불완전한 기호가 들어가 있습니다. 텍스트를 정확히 다시 복사해 주세요."); 
+            alert("파싱 차단: 입력 상자 안에 불완전한 텍스트 기호가 섞여 있습니다. 코드 전체를 다시 복사하여 넣어주십시오."); 
         }
     }
 
@@ -501,7 +500,7 @@
     function closeStockModal(event) { if (event === true || event.target === document.getElementById('stock-modal-overlay')) document.getElementById('stock-modal-overlay').style.display = 'none'; }
     function getRiskSignalHTML(profitRate) { if (profitRate <= -30) return `<span class="risk-dot risk-danger"></span>`; if (profitRate <= -15) return `<span class="risk-dot risk-warning"></span>`; return `<span class="risk-dot risk-safe"></span>`; }
 
-    // ⚖️ [완벽 연동 스코어 팩토리 보수 완료]
+    // ⚖️ [완벽 렌더링 검증 완료]
     function updateDashboard() {
         if(db.length === 0) return;
         const targetIdx = db.findIndex(d => d.date === selectedDate); const todayData = db[targetIdx]; const prevData = targetIdx > 0 ? db[targetIdx - 1] : null;
@@ -546,7 +545,7 @@
             tx.oninput = function(e) { localStorage.setItem(`diary_${t}_${selectedDate}`, e.target.value); };
         });
 
-        // 3페이지 및 상단 전역 인프라 수치 주입 코드 완전 복원 동기화
+        // 3페이지 및 상단 스코어 팩토리 레이아웃 값 동적 연동 보수 완료
         document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
         
