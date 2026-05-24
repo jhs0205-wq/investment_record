@@ -300,7 +300,7 @@
         <div class="card" style="border-color: #9b59b6; padding: 16px;">
             <h3 style="color: #c8d6e5;">🔌 대시보드 전체 누적 데이터 서버 이전 보드</h3>
             <p style="font-size: 11px; color: var(--text-sub); margin-top: -6px; margin-bottom: 10px;">
-                특정 날짜가 아닌, 브라우저에 누적된 전체 시계열 DB, 일지 기록, 매매 원칙 일체를 통째로 백업하거나 다른 서버/컴퓨터로 완벽하게 이전합니다.
+                특정 날짜가 아닌, **브라우저에 누적된 전체 시계열 DB, 일지 기록, 매매 원칙 일체를 통째로 백업하거나 다른 서버/컴퓨터로 완벽하게 이전**합니다.
             </p>
             <textarea id="gemini-export-area" style="height: 110px; font-family: monospace; background-color:#111; border-color:#444;" readonly placeholder="전체 백업 데이터를 추출하거나 원격 주입할 코드를 입력하는 창입니다." onclick="this.select()"></textarea>
             
@@ -411,7 +411,7 @@
     <div class="modal-window">
         <div class="modal-header">
             <span class="modal-title" id="pop-stock-title">종목 주가 추이 조회</span>
-            <button class="modal-close" onclick="closeStockModal(true)">×</button>
+            <button class="modal-close" onclick="closeStockModal(force=true)">×</button>
         </div>
         <div class="chart-container" style="height: 180px; margin-bottom: 12px;"><canvas id="popStockLineChart"></canvas></div>
         <div style="max-height: 120px; overflow-y: auto; font-size:12px;">
@@ -450,7 +450,7 @@
         {
             "date": "2026-05-17",
             "total_asset": 22500000, "principal": 15429928, "total_profit": 7070072, "total_profit_rate": 45.8,
-            "market_watchlist": { "코스피": 2630.10, "나스닥": 16210.50, "구글": 173.10, "엔비디아": 912.00, "시에나": 47.10, "삼성전자": 77200, "현대차": 241000, "SK하이닉스": 179500 },
+            "market_watchlist": { "코스피": 2630.10, "na스닥": 16210.50, "구글": 173.10, "엔비디아": 912.00, "시에나": 47.10, "삼성전자": 77200, "현대차": 241000, "SK하이닉스": 179500 },
             "stocks": [
                 { "name": "시에나", "count": 10, "current_price": 781768, "profit_rate": 110.6 },
                 { "name": "INTW", "count": 15, "current_price": 399498, "profit_rate": 461.0 },
@@ -532,7 +532,7 @@
         } catch(e) { alert("JSON 구문오류입니다."); }
     }
 
-    // 🔌 [마이그레이션 백업]: 삼분할 일지 루프 오타 및 괄호 구조 정밀 수리 완료
+    // 🔌 [마이그레이션 백업 원격 엔진]: 로컬기록 보관소 안의 날짜별 전체 DB와 연동 세팅값을 모조리 패킹하여 내보냄
     function exportAllDashboardData() {
         const fullBackupPackage = {
             "backup_version": "2026.Master.FullDB",
@@ -543,11 +543,12 @@
                 "todo_states": {}
             }
         };
-        
+        // 개별 체크리스트 상태값도 같이 패킹 연산
         defaultEconomySchedules.forEach((_, idx) => {
-            fullBackupPackage.local_storage_dump[`todo_schedule_${idx}`] = localStorage.getItem(`todo_schedule_${idx}`) || "false";
+            fullBackupPackage.local_storage_dump.todo_states[`todo_schedule_${idx}`] = localStorage.getItem(`todo_schedule_${idx}`);
         });
 
+        // 5페이지 피드의 개별 일지 텍스트 묶음들도 누적하여 스캔 및 완벽 결합
         db.forEach(d => {
             ['hold', 'watch', 'market', 'view'].forEach(suffix => {
                 const key = `diary_${suffix}_${d.date}`;
@@ -564,35 +565,33 @@
         alert('📋 [누적 DB 전체 압축 완료] 전체 과거 내역과 설정이 담긴 마스터 코드가 복사되었습니다! 메모장이나 다른 서버로 복사해 이동시키면 됩니다.');
     }
 
-    // 🔌 [마이그레이션 복원]: 깨진 덤프 객체 검증 엔진 파싱 가공 완벽 보수 완료
+    // 🔌 [마이그레이션 복원 원격 엔진]: 백업된 마스터 코드를 해석하여 기기/서버 불문하고 완벽 복원 주입
     function importAllDashboardData() {
-        const rawCode = document.getElementById('gemini-export-area').value.trim();
-        if (!rawCode) {
-            const promptCode = prompt("이전하거나 백업해두었던 '전체 데이터 마스터 코드(JSON)'를 입력창에 붙여넣어 주십시오:");
-            if (!promptCode) return;
-            executeImportLogic(promptCode);
-        } else {
-            executeImportLogic(rawCode);
-        }
-    }
-
-    function executeImportLogic(targetJsonStr) {
+        const rawCode = prompt("이전하거나 백업해두었던 '전체 데이터 마스터 코드(JSON)'를 여기에 붙여넣어 주십시오:");
+        if (!rawCode) return;
         try {
-            const pack = JSON.parse(targetJsonStr);
+            const pack = JSON.parse(rawCode);
             if (pack.backup_version && pack.local_storage_dump) {
                 if(!confirm("⚠️ 경고: 이 작업을 수행하면 현재 브라우저에 저장되어 있는 기존 자산 및 일지 기록이 백업 코드 내용으로 전부 덮어씌워집니다. 진행하시겠습니까?")) return;
 
                 const dump = pack.local_storage_dump;
                 
+                // 마스터 풀 초기화 후 순차 정렬 루프 동기화 주입
                 db = dump.portfolio_db || [];
                 localStorage.setItem('portfolio_db', JSON.stringify(db));
                 if(dump.my_stock_trading_tips) localStorage.setItem('my_stock_trading_tips', dump.my_stock_trading_tips);
 
+                // 나머지 덤프 객체 요소 자동 복구
                 Object.keys(dump).forEach(k => {
                     if(k !== 'portfolio_db' && k !== 'todo_states') {
                         localStorage.setItem(k, dump[k]);
                     }
                 });
+                if (dump.todo_states) {
+                    Object.keys(dump.todo_states).forEach(tk => {
+                        if(dump.todo_states[tk]) localStorage.setItem(tk, dump.todo_states[tk]);
+                    });
+                }
 
                 selectedDate = db.length > 0 ? db[db.length - 1].date : "";
                 initDateSelector(); initTodoScheduleList(); updateDashboard();
@@ -653,7 +652,7 @@
         popChartInstance = new Chart(ctxPop, { type: 'line', plugins: [ChartDataLabels], data: { labels: trendData.map(t => t.date), datasets: [{ data: trendData.map(t => t.price), borderColor: '#ffb900', backgroundColor: 'rgba(255,185,0,0.04)', borderWidth: 2, tension: 0.15, fill: true, pointRadius: 4, pointBackgroundColor: '#ffb900' }] }, options: { maintainAspectRatio: false, layout: { padding: { top: 20, left: 15, right: 20, bottom: 5 } }, plugins: { legend: { display: false }, datalabels: { display: true, align: 'top', color: '#ffb900', font: { size: 9, weight: '700' }, formatter: function(v) { return (v/10000).toFixed(1) + "만"; } } }, scales: { y: { display: false }, x: { grid: { display: false } } } } });
     }
 
-    function closeStockModal(event) { if (event === true || event.target === document.getElementById('stock-modal-overlay')) document.getElementById('stock-modal-overlay').style.display = 'none'; }
+    function closeStockModal(event) { if (event.target === document.getElementById('stock-modal-overlay') || event === true) document.getElementById('stock-modal-overlay').style.display = 'none'; }
 
     function getRiskSignalHTML(profitRate) {
         if (profitRate <= -30) return `<span class="risk-dot risk-danger" title="위험: 리스크 비상대응 요망"></span>`;
@@ -737,7 +736,7 @@
                 tr.innerHTML = `<td><strong>${item.name}</strong>${item.isWatchlist ? '<span class="badge-view badge-watchlist">관심</span>' : ''}</td><td class="profit-cell ${item.rate >= 0 ? 'val-up':'val-down'}">${item.rate >= 0 ? '+':''}${item.rate.toFixed(1)}%</td><td style="text-align: right;"><span class="badge-view badge-${savedDecision}">${savedDecision === 'BUY'?'매수':savedDecision==='SELL'?'매도':savedDecision==='HOLD'?'보류':'의견없음'}</span></td>`; feedbackBody.appendChild(tr);
             });
         }
-        
+        // 🤖 단일 시점 관점 추출 구조 매핑 유지
         const rawHLog = localStorage.getItem(`diary_hold_${selectedDate}`) || ""; const rawWLog = localStorage.getItem(`diary_watch_${selectedDate}`) || ""; const rawMLog = localStorage.getItem(`diary_market_${selectedDate}`) || "";
         const exportPack = { "evaluation_profile": "Trading Portfolio Assessment", "extracted_date": selectedDate, "core_principles": localStorage.getItem('my_stock_trading_tips') || "미입력", "portfolio_summary": { "total_net_asset": todayData.total_asset, "invested_principal": todayData.principal, "cumulative_profit_rate": todayData.total_profit_rate, "market_log": `[보유]\n${rawHLog}\n\n[관심]\n${rawWLog}\n\n[시황]\n${rawMLog}` }, "individual_asset_records": todayData.stocks.map(s => { return { "stock_name": s.name, "quantity": s.count, "closing_price": s.current_price, "profit_percentage": s.profit_rate, "user_decision_today": localStorage.getItem(`decision_${s.name}_${todayData.date}`) || "NONE" }; }), "market_indices_snapshot": todayData.market_watchlist || {} };
         document.getElementById('gemini-export-area').value = JSON.stringify(exportPack, null, 2);
