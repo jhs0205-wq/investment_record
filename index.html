@@ -114,9 +114,9 @@
             <textarea id="custom-stock-tips" style="height: 50px; background-color: #242428;" placeholder="자신만의 원칙을 적어두세요..."></textarea>
         </div>
 
-        <div class="card" style="border-color: var(--color-accent);">
+        <div class="card" style="border-color: var(--color-accent); position: relative;">
             <h3>📥 Gem 추출 데이터 복붙함</h3>
-            <textarea id="json-paste-box" style="height: 50px; font-family: monospace;" placeholder="Gem이 준 데이터를 여기에 붙여넣으세요."></textarea>
+            <textarea id="json-paste-box" style="height: 60px; font-family: monospace;" placeholder="여기에 복사한 순수 JSON 코드를 정확히 붙여넣어 주세요."></textarea>
             <button class="btn-remote" style="background-color: var(--color-accent); width:100%; margin-top:8px; color:white;" onclick="applyGemData()">데이터 즉시 적용 및 변환하기</button>
         </div>
 
@@ -205,11 +205,11 @@
         <div class="card" style="border-color: var(--color-accent);">
             <h3>📈 <span id="lbl-dashboard-date" style="color: var(--text-main);">자산 현황 Overview</span></h3>
             <div class="asset-overview">
-                <div class="main-balance" id="txt-total-asset">0원</div>
+                <div class="main-balance" id="txt-total-asset" style="font-weight: 800;">0원</div>
                 <div id="txt-total-asset-diff" class="asset-diff-badge"></div>
                 <div class="sub-balance-group">
-                    <div class="balance-item"><span class="balance-label">원금 : </span><span class="balance-value" id="txt-principal">0원</span></div>
-                    <div class="balance-item"><span class="balance-label">총 수익률 : </span><span class="balance-value" id="txt-total-profit-rate">0%</span></div>
+                    <div class="balance-item"><span class="balance-label" style="color: var(--text-sub);">원금 : </span><span class="balance-value" id="txt-principal" style="color: var(--text-main);">0원</span></div>
+                    <div class="balance-item"><span class="balance-label" style="color: var(--text-sub);">총 수익률 : </span><span class="balance-value" id="txt-total-profit-rate">0%</span></div>
                 </div>
             </div>
         </div>
@@ -368,16 +368,25 @@
 
     function changeDisplayDate(dateStr) { selectedDate = dateStr; updateDashboard(); }
 
+    // 🛠️ [진공 청소 가공 엔진]: 긁어올 때 섞여 들어간 HTML 태그나 유령 문자를 완벽히 정제 후 순수 JSON만 강제 추출
     function applyGemData() {
         let rawText = document.getElementById('json-paste-box').value.trim();
         if(!rawText) return;
+        
         try {
+            // 1. 앞뒤에 실수로 HTML 태그나 껍데기가 붙어있을 경우 자르고 순수 { } 매칭 구조만 추출
+            const startBrace = rawText.indexOf('{');
+            const endBrace = rawText.lastIndexOf('}');
+            if(startBrace !== -1 && endBrace !== -1 && endBrace > startBrace) {
+                rawText = rawText.substring(startBrace, endBrace + 1);
+            }
+
+            // 2. 모바일 특수 투명 공백문자 전면 파괴 처리
             rawText = rawText.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            rawText = rawText.replace(/\s+/g, ' ');
-            rawText = rawText.trim();
+            rawText = rawText.replace(/\s+/g, ' ').trim();
 
             const newData = JSON.parse(rawText);
-            if(!newData.date) { alert("날짜 필드 유실!"); return; }
+            if(!newData.date) { alert("날짜가 식별되지 않는 규격입니다."); return; }
 
             const existingIndex = db.findIndex(item => item.date === newData.date);
             if (existingIndex !== -1) db[existingIndex] = newData;
@@ -388,8 +397,10 @@
             selectedDate = newData.date;
             document.getElementById('json-paste-box').value = "";
             initDateSelector(); updateDashboard();
-            alert(`${newData.date} 투자 데이터 스냅샷이 성공적으로 반영되었습니다!`);
-        } catch(e) { alert("JSON 구문오류가 차단되었습니다. 복사한 코드의 완전성을 확인해 주세요."); }
+            alert(`${newData.date} 자산 동기화 스냅샷이 정상 주입되었습니다!`);
+        } catch(e) { 
+            alert("JSON 파싱 차단: 입력 상자 안에 주식 데이터가 아닌 HTML 사이트 소스 코드나 불완전한 기호가 들어가 있습니다. 텍스트를 정확히 다시 복사해 주세요."); 
+        }
     }
 
     function exportAllDashboardData() {
@@ -490,7 +501,7 @@
     function closeStockModal(event) { if (event === true || event.target === document.getElementById('stock-modal-overlay')) document.getElementById('stock-modal-overlay').style.display = 'none'; }
     function getRiskSignalHTML(profitRate) { if (profitRate <= -30) return `<span class="risk-dot risk-danger"></span>`; if (profitRate <= -15) return `<span class="risk-dot risk-warning"></span>`; return `<span class="risk-dot risk-safe"></span>`; }
 
-    // 🛠️ [렌더링 버그 교정 완료]: 3페이지 Overview 스코어보드 값 매핑 완전 보수
+    // ⚖️ [완벽 연동 스코어 팩토리 보수 완료]
     function updateDashboard() {
         if(db.length === 0) return;
         const targetIdx = db.findIndex(d => d.date === selectedDate); const todayData = db[targetIdx]; const prevData = targetIdx > 0 ? db[targetIdx - 1] : null;
@@ -535,7 +546,7 @@
             tx.oninput = function(e) { localStorage.setItem(`diary_${t}_${selectedDate}`, e.target.value); };
         });
 
-        // 3페이지 및 공통 상단 지표 실시간 동적 주입 스케줄러 가동
+        // 3페이지 및 상단 전역 인프라 수치 주입 코드 완전 복원 동기화
         document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
         
