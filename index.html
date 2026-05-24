@@ -91,7 +91,7 @@
 <div class="container">
     <div class="page-tabs">
         <button class="tab-btn active" onclick="switchPage('page1', this)">1p: 입력 대시보드</button>
-        <button class="tab-btn" onclick="switchPage('page2', this)">2p: 복기 및 분석</button>
+        <button class="tab-btn" onclick="switchPage('page2', this)">2p: 복기 및 추출</button>
         <button class="tab-btn" onclick="switchPage('page3', this)">3p: 통계 그래프</button>
         <button class="tab-btn" onclick="switchPage('page4', this)">4p: 군적금 & 도약</button>
         <button class="tab-btn" onclick="switchPage('page5', this)">5p: 일지 아카이브</button>
@@ -186,7 +186,7 @@
 
         <div class="card" style="border-color: #9b59b6; padding:16px;">
             <h3>🤖 Gemini 투자 역량 평가용 전용 추출 보드</h3>
-            <textarea id="gemini-export-area" style="height: 90px; font-family: monospace; background-color:#111; border-color:#444;" readonly placeholder="선택한 날짜의 의사결정 로그가 여기에 정형화 패킹됩니다."></textarea>
+            <textarea id="gemini-export-area" style="height: 90px; font-family: monospace; background-color:#111; border-color:#444;" readonly placeholder="선택한 날짜의 의사결정 로그가 여기에 패킹됩니다."></textarea>
             <div class="remote-io-group">
                 <button class="btn-remote" onclick="generateAndCopySnapshot()">📋 현재 시점 분석 데이터 복사하기</button>
             </div>
@@ -228,7 +228,7 @@
     <div id="page4" class="page-content">
         <header>
             <div>
-                <h1>4페이지: 자산 보관소 & 매크로 일정</h1>
+                <h1>4페이지: 장기 예적금 자산 보관소</h1>
                 <div class="header-sub">목돈 마련 고금리 예적금 자산의 납입 내역 및 최종 수령액을 추적합니다.</div>
             </div>
         </header>
@@ -363,13 +363,12 @@
 
     function changeDisplayDate(dateStr) { selectedDate = dateStr; updateDashboard(); }
 
-    // 🛠️ [정밀 저격 필터 수리]: 하루치 스냅샷용 코드를 완벽하게 세척하여 3페이지 대시보드로 무조건 다이렉트 연동
+    // 🛠️ [파싱 교정 엔진]: 껍데기에 붙은 HTML 파편을 완벽하게 잘라내고 강제로 주입 동기화 처리
     function applyGemData() {
         let rawText = document.getElementById('json-paste-box').value.trim();
         if(!rawText) return;
         
         try {
-            // 특수 유령 공백문자 전면 소멸
             rawText = rawText.replace(/[\u200B-\u200D\uFEFF]/g, '');
             const startIdx = rawText.indexOf('{');
             const endIdx = rawText.lastIndexOf('}');
@@ -402,7 +401,6 @@
                 if (parsed.market_watchlist) formattedNode.market_watchlist = parsed.market_watchlist;
                 if (parsed.market_indices_snapshot) formattedNode.market_watchlist = parsed.market_indices_snapshot;
 
-                // 총 이익금 역산
                 formattedNode.total_profit = formattedNode.total_asset - formattedNode.principal;
 
                 const existingIndex = db.findIndex(item => item.date === finalDate);
@@ -420,7 +418,6 @@
                 alert(`✨ [성공] ${finalDate} 데이터 스냅샷이 정상 주입되었습니다! 3페이지 자산 판넬을 확인하세요.`);
                 return;
             }
-            alert("유효한 하루치 데이터셋 양식이 아닙니다.");
         } catch(e) {
             alert("JSON 구문오류 필터링: 중괄호 짝이 맞지 않거나 앞뒤에 불필요한 기호가 복사되었습니다. 정확히 복사했는지 확인해 주세요.");
         }
@@ -431,35 +428,6 @@
         const copyText = document.getElementById('gemini-export-area').value;
         navigator.clipboard.writeText(copyText);
         alert("📋 현재 시점 분석 코드가 성공적으로 복사되었습니다! Gemini 대화창에 바로 붙여넣으세요.");
-    }
-
-    function exportAllDashboardData() {
-        const fullBackupPackage = {
-            "backup_version": "2026.Master.FullDB", "export_timestamp": new Date().toISOString(),
-            "local_storage_dump": { "portfolio_db": db, "my_stock_trading_tips": localStorage.getItem('my_stock_trading_tips') || "", "todo_states": {} }
-        };
-        defaultEconomySchedules.forEach((_, idx) => { fullBackupPackage.local_storage_dump[`todo_schedule_${idx}`] = localStorage.getItem(`todo_schedule_${idx}`) || "false"; });
-        db.forEach(d => {
-            ['hold', 'watch', 'market', 'view'].forEach(suffix => { const key = `diary_${suffix}_${d.date}`; const val = localStorage.getItem(key); if(val) fullBackupPackage.local_storage_dump[key] = val; });
-            const starKey = `star_date_${d.date}`; const starVal = localStorage.getItem(starKey); if(starVal) fullBackupPackage.local_storage_dump[starKey] = starVal;
-        });
-        const textarea = document.getElementById('gemini-export-area'); textarea.value = JSON.stringify(fullBackupPackage, null, 2); textarea.select();
-        navigator.clipboard.writeText(textarea.value);
-        alert('📋 마스터 데이터 백업 복사 완료!');
-    }
-
-    function importAllDashboardData() {
-        const rawCode = prompt("백업 코드를 입력창에 붙여넣어 주세요:");
-        if(!rawCode) return;
-        try {
-            const pack = JSON.parse(rawCode.replace(/[\u200B-\u200D\uFEFF]/g, ''));
-            const dump = pack.local_storage_dump || pack;
-            db = dump.portfolio_db || pack.db || []; localStorage.setItem('portfolio_db', JSON.stringify(db));
-            Object.keys(dump).forEach(k => { if(k !== 'portfolio_db') localStorage.setItem(k, dump[k]); });
-            selectedDate = db.length > 0 ? db[db.length - 1].date : "";
-            initDateSelector(); initTodoScheduleList(); updateDashboard();
-            alert("🔌 누적 마스터 복원 성공!"); location.reload();
-        } catch(e) { alert("백업 주입 실패"); }
     }
 
     function initTodoScheduleList() {
@@ -525,11 +493,9 @@
     function closeStockModal(event) { if (event === true || event.target === document.getElementById('stock-modal-overlay')) document.getElementById('stock-modal-overlay').style.display = 'none'; }
     function getRiskSignalHTML(profitRate) { if (profitRate <= -30) return `<span class="risk-dot risk-danger"></span>`; if (profitRate <= -15) return `<span class="risk-dot risk-warning"></span>`; return `<span class="risk-dot risk-safe"></span>`; }
 
-    // ⚖️ [완벽 연동 렌더링 코어 엔진] : 0원 락 현상 완전 해결
+    // ⚖️ [완벽 재구축 스코어 연동 핵심 모듈]
     function updateDashboard() {
         if(db.length === 0) return;
-        
-        // 최신 인덱싱 검색 매커니즘 보강
         const targetIdx = db.findIndex(d => d.date === selectedDate); 
         if (targetIdx === -1) return;
         
@@ -576,7 +542,7 @@
             tx.oninput = function(e) { localStorage.setItem(`diary_${t}_${selectedDate}`, e.target.value); };
         });
 
-        // 3페이지 및 공통 자산 스코어보드 수치 렌더링 강제 실행 엔진 조율
+        // 3페이지 상단 Overview 수치 주입
         document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('txt-total-asset').innerText = todayData.total_asset.toLocaleString() + "원";
         
@@ -595,8 +561,6 @@
         const p3 = document.getElementById('page3'); 
         if(p3 && p3.classList.contains('active')) buildCharts(todayData);
     }
-
-    function buildTimelineArchive() {} // 아카이브 데이터 전치 홀딩
 
     function buildFeedbackAndExportZone() {
         if(db.length === 0) return;
@@ -623,20 +587,6 @@
         const rawHLog = localStorage.getItem(`diary_hold_${selectedDate}`) || ""; const rawWLog = localStorage.getItem(`diary_watch_${selectedDate}`) || ""; const rawMLog = localStorage.getItem(`diary_market_${selectedDate}`) || "";
         const exportPack = { "evaluation_profile": "Trading Portfolio Assessment", "extracted_date": selectedDate, "core_principles": localStorage.getItem('my_stock_trading_tips') || "미입력", "portfolio_summary": { "total_net_asset": todayData.total_asset, "invested_principal": todayData.principal, "cumulative_profit_rate": todayData.total_profit_rate, "market_log": `[보유]\n${rawHLog}\n\n[관심]\n${rawWLog}\n\n[시황]\n${rawMLog}` }, "individual_asset_records": todayData.stocks.map(s => { return { "stock_name": s.name, "quantity": s.count, "closing_price": s.current_price, "profit_percentage": s.profit_rate, "user_decision_today": localStorage.getItem(`decision_${s.name}_${todayData.date}`) || "NONE" }; }), "market_indices_snapshot": todayData.market_watchlist || {} };
         document.getElementById('gemini-export-area').value = JSON.stringify(exportPack, null, 2);
-    }
-
-    function buildCharts(todayData) {
-        if(!todayData) return;
-        const ctxPie = document.getElementById('stockWeightPieChart').getContext('2d'); if(pieChartInstance) pieChartInstance.destroy();
-        let pieLabels = []; let pieValues = []; let totalHoldingsSum = 0;
-        todayData.stocks.forEach(s => { const amt = Math.round(s.count * s.current_price); if(amt > 1000) { pieLabels.push(s.name); pieValues.push(amt); totalHoldingsSum += amt; } });
-        pieChartInstance = new Chart(ctxPie, { type: 'doughnut', plugins: [ChartDataLabels], data: { labels: pieLabels, datasets: [{ data: pieValues, backgroundColor: ['#ff5e67', '#4da6ff', '#6c5ce7', '#ffb900', '#1dd1a1', '#ff9f43', '#00d2d3', '#54a0ff'], borderWidth: 2, borderColor: '#1e1e22' }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: true, position: 'right', labels: { color: '#f0f0f3', font: { size: 11 }, boxWidth: 10 } }, datalabels: { display: true, color: '#ffffff', font: { weight: '700', size: 10 }, formatter: function(value) { return ((value / totalHoldingsSum) * 100).toFixed(1) + '%'; } } } } });
-
-        const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d'); if(assetChartInstance) assetChartInstance.destroy();
-        assetChartInstance = new Chart(ctxHistory, { type: 'line', plugins: [ChartDataLabels], data: { labels: db.map(d => d.date.split('-').slice(1).join('.')), datasets: [{ data: db.map(d => d.total_asset), borderColor: '#6c5ce7', backgroundColor: 'rgba(108, 92, 231, 0.06)', borderWidth: 2.5, tension: 0.25, fill: true }] }, options: { maintainAspectRatio: false, layout: { padding: { top: 22, left: 10, right: 15 } }, plugins: { legend: { display: false }, datalabels: { display: true, align: 'top', anchor: 'end', color: '#6c5ce7', font: { size: 10, weight: '700' }, formatter: function(value) { return (Math.round(value / 10000)).toLocaleString() + "만"; } } }, scales: { y: { display: false }, x: { grid: { display: false } } } } });
-
-        const ctxProfit = document.getElementById('stockProfitChart').getContext('2d'); if(stockChartInstance) stockChartInstance.destroy();
-        stockChartInstance = new Chart(ctxProfit, { type: 'bar', plugins: [ChartDataLabels], data: { labels: todayData.stocks.map(s => s.name), datasets: [{ data: todayData.stocks.map(s => s.profit_rate), backgroundColor: todayData.stocks.map(s => s.profit_rate <= -15 ? 'var(--color-danger)' : s.profit_rate >= 0 ? '#ff5e67' : '#4da6ff'), borderRadius: 4 }] }, options: { maintainAspectRatio: false, layout: { padding: { top: 24 } }, plugins: { legend: { display: false }, datalabels: { display: true, align: 'end', anchor: 'end', color: '#f0f0f3', font: { size: 10, weight: '600' }, formatter: function(v) { return (v > 0 ? '+' : '') + v.toFixed(1) + '%'; } } } } });
     }
 
     function renderTimelineFeed() {
