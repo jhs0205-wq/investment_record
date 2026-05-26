@@ -83,7 +83,7 @@
         .btn-remote { background-color: #2c2c32; color: var(--text-main); border: 1px solid #3e3e46; border-radius: 10px; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; }
         .todo-item { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 8px; cursor: pointer; }
         .todo-item input[type="checkbox"] { accent-color: var(--color-saving); width: 14px; height: 14px; }
-        .chart-container { position: relative; height: 210px; }
+        .chart-container { position: relative; height: 210px; width: 100%; }
     </style>
 </head>
 <body>
@@ -310,6 +310,8 @@
         }
     ];
 
+    const defaultEconomySchedules = [ "미국 소비자물가지수(CPI) 발표 확인", "연준 FOMC 기준 금리 결정 모니터링", "엔비디아(NVDA) 분기 실적 발표 대응", "시에나(CIEN) 실적 및 가이드라인 스캔" ];
+
     window.onload = function() {
         if (db.length < 2 || !db.some(d => d.date === "2026-05-18")) {
             db = masterBackupSeed; localStorage.setItem('portfolio_db', JSON.stringify(db));
@@ -340,17 +342,19 @@
 
     function changeDisplayDate(dateStr) { selectedDate = dateStr; updateDashboard(); }
 
+    // 🛠️ [엔진 필터 리빌딩]: 불필요한 교정 코드를 제거하고 원본 텍스트의 데이터만 정확히 파싱하도록 안전 설계
     function applyGemData() {
         let rawText = document.getElementById('json-paste-box').value.trim();
         if(!rawText) return;
         
         try {
-            rawText = rawText.replace(/[\u200B-\u200D\uFEFF]/g, '');
             const startIdx = rawText.indexOf('{');
             const endIdx = rawText.lastIndexOf('}');
-            if(startIdx !== -1 && endIdx !== -1) {
-                rawText = rawText.substring(startIdx, endIdx + 1);
+            if(startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
+                alert("JSON 형식이 완전하지 않습니다. 첫 중괄호 { 와 끝 중괄호 } 가 포함되었는지 확인하세요.");
+                return;
             }
+            rawText = rawText.substring(startIdx, endIdx + 1);
 
             const parsed = JSON.parse(rawText);
 
@@ -391,11 +395,11 @@
                 initDateSelector(); 
                 updateDashboard();
                 
-                alert(`✨ [성공] ${finalDate} 데이터 스냅샷이 누수 없이 결합되었습니다!`);
+                alert(`✨ [연동 성공] ${finalDate} 데이터 스냅샷이 누수 없이 결합되었습니다!`);
                 return;
             }
         } catch(e) {
-            alert("JSON 구문오류 필터링: 데이터 앞뒤에 쓰레기 기호가 섞였습니다.");
+            alert("JSON 구문오류 필터링: 데이터 내부에 오타가 있거나 기호가 누락되었습니다. 텍스트를 다시 복사하여 시도해 주세요.");
         }
     }
 
@@ -469,7 +473,7 @@
     function closeStockModal(event) { if (event === true || event.target === document.getElementById('stock-modal-overlay')) document.getElementById('stock-modal-overlay').style.display = 'none'; }
     function getRiskSignalHTML(profitRate) { if (profitRate <= -30) return `<span class="risk-dot risk-danger"></span>`; if (profitRate <= -15) return `<span class="risk-dot risk-warning"></span>`; return `<span class="risk-dot risk-safe"></span>`; }
 
-    // 🍕 [차트 동적 드로잉 엔진 핵심부 복구 완수]
+    // 🍕 [통계 그래프 강제 인젝션 모듈 복구]
     function buildCharts(todayData) {
         if(!todayData || !todayData.stocks) return;
 
@@ -508,7 +512,7 @@
         });
     }
 
-    // ⚖️ [동적 바인딩 시스템 융합 완수]
+    // ⚖️ [완벽 연동 렌더링 코어 브릿지 동기화]
     function updateDashboard() {
         if(db.length === 0) return;
         const targetIdx = db.findIndex(d => d.date === selectedDate); 
@@ -557,7 +561,7 @@
             tx.oninput = function(e) { localStorage.setItem(`diary_${t}_${selectedDate}`, e.target.value); };
         });
 
-        // 3페이지 오버뷰 매핑 렌더러 동작 연동
+        // 3페이지 오버뷰 매핑 렌더러 복구 동작
         document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('txt-total-asset').innerText = Number(todayData.total_asset).toLocaleString() + "원";
         document.getElementById('txt-principal').innerText = Number(todayData.principal).toLocaleString() + "원";
@@ -575,7 +579,7 @@
             assetDiffEl.innerText = "전일 데이터 없음"; assetDiffEl.className = "asset-diff-badge";
         }
 
-        // 🛠️ 대시보드가 업데이트 될 때마다 3페이지 차트 함수를 실시간 강제 체인 링크
+        // 🛠️ 실시간 렌더링 무한 동기화 연결
         buildCharts(todayData);
     }
 
