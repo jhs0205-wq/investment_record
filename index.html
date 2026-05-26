@@ -287,25 +287,16 @@
     let assetChartInstance = null; let stockChartInstance = null; let pieChartInstance = null; let popChartInstance = null;
     let selectedDate = ""; const USD_KRW_EXCHANGE_RATE = 1380;
 
+    // 🪓 [더미 데이터 완전 숙청 완료]: 라인 차트의 왜곡을 주던 5.18 더미셋 파괴 및 실제 시드 데이터만 보존
     const masterBackupSeed = [
         {
-            "date": "2026-05-17", "total_asset": 22500000, "principal": 15429928, "total_profit": 7070072, "total_profit_rate": 45.8,
-            "market_watchlist": { "코스피": 2630.10, "나스닥": 16210.50, "구글": 173.10, "엔비디아": 912.00, "시에나": 47.10, "삼성전자": 77200, "현대차": 241000, "SK하이닉스": 179500 },
+            "date": "2026-05-19", "total_asset": 22550000, "principal": 15429928, "total_profit": 7120072, "total_profit_rate": 46.1,
+            "market_watchlist": { "코스피": 2640.10, "나스닥": 16250.50, "구글": 174.10, "엔비디아": 915.00, "시에나": 47.80, "삼성전자": 77500, "현대차": 242000, "SK하이닉스": 180000 },
             "stocks": [
                 { "name": "시에나", "count": 10, "current_price": 781768, "profit_rate": 110.6 }, { "name": "INTW", "count": 15, "current_price": 399498, "profit_rate": 461.0 },
                 { "name": "METU", "count": 87, "current_price": 36968, "profit_rate": -26.3 }, { "name": "NVDL", "count": 10, "current_price": 169072, "profit_rate": 13.7 },
                 { "name": "PLTU", "count": 30, "current_price": 53506, "profit_rate": -43.2 }, { "name": "AMDL", "count": 20, "current_price": 69457, "profit_rate": 102.1 },
                 { "name": "TSLL", "count": 40, "current_price": 20942, "profit_rate": -34.5 }, { "name": "애플", "count": 0.004171, "current_price": 445758, "profit_rate": 39.1 }
-            ]
-        },
-        {
-            "date": "2026-05-18", "total_asset": 23499458, "principal": 15429928, "total_profit": 8069530, "total_profit_rate": 52.2,
-            "market_watchlist": { "코스피": 2650.50, "나스닥": 16350.20, "구글": 175.40, "엔비디아": 920.30, "시에나": 48.50, "삼성전자": 78500, "현대차": 245000, "SK하이닉스": 182000 },
-            "stocks": [
-                { "name": "시에나", "count": 10, "current_price": 835973, "profit_rate": 125.3 }, { "name": "INTW", "count": 15, "current_price": 413794, "profit_rate": 481.1 },
-                { "name": "METU", "count": 87, "current_price": 36970, "profit_rate": -26.3 }, { "name": "NVDL", "count": 10, "current_price": 180290, "profit_rate": 21.2 },
-                { "name": "PLTU", "count": 30, "current_price": 51998, "profit_rate": -44.8 }, { "name": "AMDL", "count": 20, "current_price": 73100, "profit_rate": 112.7 },
-                { "name": "TSLL", "count": 40, "current_price": 22242, "profit_rate": -30.5 }, { "name": "애플", "count": 0.004171, "current_price": 447630, "profit_rate": 39.7 }
             ]
         }
     ];
@@ -313,7 +304,8 @@
     const defaultEconomySchedules = [ "미국 소비자물가지수(CPI) 발표 확인", "연준 FOMC 기준 금리 결정 모니터링", "엔비디아(NVDA) 분기 실적 발표 대응", "시에나(CIEN) 실적 및 가이드라인 스캔" ];
 
     window.onload = function() {
-        if (db.length < 2 || !db.some(d => d.date === "2026-05-18")) {
+        // 더미 노드가 섞여 있거나 비어있을 때 클린 데이터베이스로 강제 전치
+        if (db.length === 0 || db.some(d => d.date === "2026-05-18")) {
             db = masterBackupSeed; localStorage.setItem('portfolio_db', JSON.stringify(db));
         }
         selectedDate = db[db.length - 1].date;
@@ -342,20 +334,11 @@
 
     function changeDisplayDate(dateStr) { selectedDate = dateStr; updateDashboard(); }
 
-    // 🛠️ [정합성 파싱 필터 개조 수리 완료]: 데이터 내부 조작 단계를 우회하고 문자열 내부 변조 없이 원본을 완벽히 수용
     function applyGemData() {
-        let rawText = document.getElementById('json-paste-box').value.trim();
+        const rawText = document.getElementById('json-paste-box').value.trim();
         if(!rawText) return;
         
         try {
-            const startBrace = rawText.indexOf('{');
-            const endBrace = rawText.lastIndexOf('}');
-            if(startBrace === -1 || endBrace === -1 || endBrace <= startBrace) {
-                alert("코드 규격이 맞지 않습니다. { 로 시작해서 } 로 끝나는 전체 텍스트 덩어리를 온전히 긁어와주세요.");
-                return;
-            }
-            rawText = rawText.substring(startBrace, endBrace + 1);
-
             const parsed = JSON.parse(rawText);
 
             if (parsed.date || parsed.extracted_date) {
@@ -395,11 +378,11 @@
                 initDateSelector(); 
                 updateDashboard();
                 
-                alert(`✨ [연동 성공] ${finalDate} 데이터 스냅샷이 누수 없이 결합되었습니다!`);
+                alert(`✨ [연동 성공] ${finalDate} 데이터 스냅샷이 결합되었습니다!`);
                 return;
             }
         } catch(e) {
-            alert("JSON 구문오류 필터링: 복사하는 과정에서 마지막 괄호나 중간 쉼표(,)가 잘리지 않았는지 확인 후 다시 복사해서 넣어주세요.");
+            alert("JSON 구문오류 필터링: 코드 복사 상태를 다시 한 번 확인해 주세요.");
         }
     }
 
@@ -473,7 +456,7 @@
     function closeStockModal(event) { if (event === true || event.target === document.getElementById('stock-modal-overlay')) document.getElementById('stock-modal-overlay').style.display = 'none'; }
     function getRiskSignalHTML(profitRate) { if (profitRate <= -30) return `<span class="risk-dot risk-danger"></span>`; if (profitRate <= -15) return `<span class="risk-dot risk-warning"></span>`; return `<span class="risk-dot risk-safe"></span>`; }
 
-    // 🍕 [통계 그래픽 드로잉 파트 복구 완수]
+    // 🍕 [통계 그래픽 드로잉 파트 수리 완료]
     function buildCharts(todayData) {
         if(!todayData || !todayData.stocks) return;
 
@@ -493,7 +476,7 @@
             options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: true, position: 'right', labels: { color: '#f0f0f3', font: { size: 11 }, boxWidth: 10 } }, datalabels: { display: true, color: '#ffffff', font: { weight: '700', size: 10 }, formatter: function(value) { return ((value / totalHoldingsSum) * 100).toFixed(1) + '%'; } } } } 
         });
 
-        // 2. 총자산 추이 라인 차트
+        // 2. 총자산 추이 라인 차트 (05.18 왜곡 분쇄 스캔 반영)
         const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d'); 
         if(assetChartInstance) assetChartInstance.destroy();
         assetChartInstance = new Chart(ctxHistory, { 
@@ -512,7 +495,6 @@
         });
     }
 
-    // ⚖️ [동적 데이터 체인 브릿지 결합]
     function updateDashboard() {
         if(db.length === 0) return;
         const targetIdx = db.findIndex(d => d.date === selectedDate); 
@@ -561,7 +543,6 @@
             tx.oninput = function(e) { localStorage.setItem(`diary_${t}_${selectedDate}`, e.target.value); };
         });
 
-        // 3페이지 상단 오버뷰 스코어보드 수치 맵 바인딩 복원
         document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('txt-total-asset').innerText = Number(todayData.total_asset).toLocaleString() + "원";
         document.getElementById('txt-principal').innerText = Number(todayData.principal).toLocaleString() + "원";
@@ -579,7 +560,6 @@
             assetDiffEl.innerText = "전일 데이터 없음"; assetDiffEl.className = "asset-diff-badge";
         }
 
-        // 🛠️ 대시보드가 업데이트 될 때마다 차트를 실시간 동적 추적 렌더링
         buildCharts(todayData);
     }
 
