@@ -287,7 +287,7 @@
     let assetChartInstance = null; let stockChartInstance = null; let pieChartInstance = null; let popChartInstance = null;
     let selectedDate = ""; const USD_KRW_EXCHANGE_RATE = 1380;
 
-    // 🪓 [더미 데이터 완전 숙청 완료]: 라인 차트의 왜곡을 주던 5.18 더미셋 파괴 및 실제 시드 데이터만 보존
+    // 🪓 [더미 데이터 완전 숙청 완수]: 자산 추이를 왜곡하던 5.18 노드를 전면 배제하고 정상적인 시발점(5.19)만 등록
     const masterBackupSeed = [
         {
             "date": "2026-05-19", "total_asset": 22550000, "principal": 15429928, "total_profit": 7120072, "total_profit_rate": 46.1,
@@ -304,7 +304,7 @@
     const defaultEconomySchedules = [ "미국 소비자물가지수(CPI) 발표 확인", "연준 FOMC 기준 금리 결정 모니터링", "엔비디아(NVDA) 분기 실적 발표 대응", "시에나(CIEN) 실적 및 가이드라인 스캔" ];
 
     window.onload = function() {
-        // 더미 노드가 섞여 있거나 비어있을 때 클린 데이터베이스로 강제 전치
+        // 데이터가 없거나 과거 5.18 찌꺼기가 남아있는 경우 클린 시드로 데이터베이스 강제 청소 및 초기화
         if (db.length === 0 || db.some(d => d.date === "2026-05-18")) {
             db = masterBackupSeed; localStorage.setItem('portfolio_db', JSON.stringify(db));
         }
@@ -334,6 +334,7 @@
 
     function changeDisplayDate(dateStr) { selectedDate = dateStr; updateDashboard(); }
 
+    // 🛠️ [정밀 타격 안전 가공 칩] : 텍스트 파괴 없이 온전하게 파싱을 연결
     function applyGemData() {
         const rawText = document.getElementById('json-paste-box').value.trim();
         if(!rawText) return;
@@ -378,11 +379,11 @@
                 initDateSelector(); 
                 updateDashboard();
                 
-                alert(`✨ [연동 성공] ${finalDate} 데이터 스냅샷이 결합되었습니다!`);
+                alert(`✨ [연동 성공] ${finalDate} 데이터가 완벽하게 대시보드 코어에 병합되었습니다!`);
                 return;
             }
         } catch(e) {
-            alert("JSON 구문오류 필터링: 코드 복사 상태를 다시 한 번 확인해 주세요.");
+            alert("JSON 해석 오류: 데이터의 구조가 깨져 있습니다. 텍스트를 정확하게 다시 복사해 주세요.");
         }
     }
 
@@ -456,7 +457,7 @@
     function closeStockModal(event) { if (event === true || event.target === document.getElementById('stock-modal-overlay')) document.getElementById('stock-modal-overlay').style.display = 'none'; }
     function getRiskSignalHTML(profitRate) { if (profitRate <= -30) return `<span class="risk-dot risk-danger"></span>`; if (profitRate <= -15) return `<span class="risk-dot risk-warning"></span>`; return `<span class="risk-dot risk-safe"></span>`; }
 
-    // 🍕 [통계 그래픽 드로잉 파트 수리 완료]
+    // 🍕 [통계 그래픽 드로잉 파트 리빌딩 완수]
     function buildCharts(todayData) {
         if(!todayData || !todayData.stocks) return;
 
@@ -476,7 +477,7 @@
             options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: true, position: 'right', labels: { color: '#f0f0f3', font: { size: 11 }, boxWidth: 10 } }, datalabels: { display: true, color: '#ffffff', font: { weight: '700', size: 10 }, formatter: function(value) { return ((value / totalHoldingsSum) * 100).toFixed(1) + '%'; } } } } 
         });
 
-        // 2. 총자산 추이 라인 차트 (05.18 왜곡 분쇄 스캔 반영)
+        // 2. 총자산 추이 라인 차트 (05.18 노드가 전면 배제된 무결점 시계열 곡선)
         const ctxHistory = document.getElementById('assetHistoryChart').getContext('2d'); 
         if(assetChartInstance) assetChartInstance.destroy();
         assetChartInstance = new Chart(ctxHistory, { 
@@ -495,6 +496,7 @@
         });
     }
 
+    // ⚖:// 동적 데이터 렌더러 결합
     function updateDashboard() {
         if(db.length === 0) return;
         const targetIdx = db.findIndex(d => d.date === selectedDate); 
@@ -543,6 +545,7 @@
             tx.oninput = function(e) { localStorage.setItem(`diary_${t}_${selectedDate}`, e.target.value); };
         });
 
+        // 3페이지 오버뷰 매핑 데이터 동동 업데이트
         document.getElementById('lbl-dashboard-date').innerText = `자산 현황 Overview (${selectedDate})`;
         document.getElementById('txt-total-asset').innerText = Number(todayData.total_asset).toLocaleString() + "원";
         document.getElementById('txt-principal').innerText = Number(todayData.principal).toLocaleString() + "원";
