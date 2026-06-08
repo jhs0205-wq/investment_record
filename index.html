@@ -193,9 +193,20 @@
             background-color: #1e1e22; border: 1px solid #3c3c43; border-radius: 16px;
             width: 100%; max-width: 450px; padding: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); position: relative;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .modal-title { font-size: 15px; font-weight: 700; color: var(--text-main); }
         .modal-close { background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer; }
+
+        /* ✨ 모달 내 기간 필터 탭 스타일 */
+        .modal-filter-zone {
+            display: flex; gap: 4px; margin-bottom: 12px; background: #141417; padding: 3px; border-radius: 8px; border: 1px solid var(--border-subtle);
+        }
+        .filter-btn {
+            flex: 1; background: none; border: none; color: var(--text-sub); font-size: 11px; padding: 5px; cursor: pointer; border-radius: 6px; font-weight: 600;
+        }
+        .filter-btn.active {
+            background: var(--color-accent); color: white;
+        }
 
         .badge-view { font-size: 11px; padding: 2px 5px; border-radius: 4px; font-weight: 600; display: inline-block; }
         .badge-BUY { background-color: rgba(255,94,103,0.15); color: var(--color-up); }
@@ -255,25 +266,26 @@
                 <h1>나의 투자 관리 제어판</h1>
                 <div class="header-sub">불필요한 지표를 제외하고 당일 판단 조작에만 집중합니다.</div>
             </div>
-            <div>
+            <div class="date-selector-zone">
                 <select class="select-date" id="history-date-select" onchange="changeDisplayDate(this.value)"></select>
+                <button class="opt-btn SELL" style="padding: 7px 10px; font-size:12px;" onclick="deleteSelectedDateData()">🗑️ 선택일 삭제</button>
             </div>
         </header>
 
         <div class="card" style="border-color: var(--color-tip); padding: 14px; margin-bottom: 10px;">
             <h3>💡 고정 매매 원칙</h3>
-            <textarea id="fixed-stock-principles" style="height: auto; min-height: 45px; background-color: #242428; overflow-y: hidden;" placeholder="공포에 팔면 안된다. 공포가 살때대..." autocapitalize="off" autocorrect="off"></textarea>
+            <textarea id="fixed-stock-principles" style="height: auto; min-height: 45px; background-color: #242428; overflow-y: hidden;" placeholder="자신만의 매매 원칙을 적어두세요..." autocapitalize="off" autocorrect="off"></textarea>
         </div>
 
         <div class="card" style="border-color: var(--color-saving); padding: 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="margin: 0;"><span id="plan-date-label">오늘</span>의 매수/매도 실행 계획</h3>
+                <h3 style="margin: 0;">📝 나의 매수/매도 실행 계획</h3>
                 <div style="display: flex; gap: 4px;">
                     <button class="opt-btn HOLD" style="font-size: 10px; padding: 3px 6px;" onclick="insertPlanTemplate()">📅 서식 주입</button>
                     <button class="opt-btn SELL" style="font-size: 10px; padding: 3px 6px;" onclick="clearPlanText()">🧹 비우기</button>
                 </div>
             </div>
-            <textarea id="custom-stock-tips" style="height: auto; min-height: 80px; background-color: #202424; overflow-y: hidden;" placeholder="이곳에 적는 계획은 위의 날짜별로 각각 안전하게 독립 저장됩니다." autocapitalize="off" autocorrect="off"></textarea>
+            <textarea id="custom-stock-tips" style="height: auto; min-height: 80px; background-color: #202424; overflow-y: hidden;" placeholder="자신이 직접 수정하거나 비우기 전까지는 날짜를 바꾸어도 항상 고정되어 노출됩니다." autocapitalize="off" autocorrect="off"></textarea>
         </div>
 
         <div class="card" style="border-color: var(--color-accent);">
@@ -317,17 +329,17 @@
         <header>
             <div>
                 <h1>2페이지: 피드백 및 AI 연동 백오피스</h1>
-                <div class="header-sub">보유 종목과 관심 종목을 통합 정렬하여 전날의 판단을 복기합니다.</div>
+                <div class="header-sub">보유 종목과 관심 종목을 통합 정렬하여 전날 대비 당일 변동률을 복기합니다.</div>
             </div>
         </header>
 
         <div class="card" style="padding: 14px; border-color: var(--color-hold);">
-            <h3>🎯 익일 수익률 정렬 순위 및 전날 투자 판단 대조표</h3>
+            <h3>🎯 전날 대비 일일 변동률 정렬 순위 및 투자 판단 대조표</h3>
             <table style="margin-top: 6px;">
                 <thead>
                     <tr>
                         <th style="width: 38%;">종목명</th>
-                        <th style="width: 27%; text-align: right;">선택일 수익률/변동</th>
+                        <th style="width: 27%; text-align: right;">전날 대비 변동률</th>
                         <th style="width: 35%; text-align: right;">전날 나의 판단</th>
                     </tr>
                 </thead>
@@ -441,7 +453,7 @@
         </div>
 
         <div class="card" style="border-color: var(--color-saving);">
-            <h3>📅 당일 수립했던 매수/매도 실행 계획</h3>
+            <h3>📅 당시 화면에 띄워져 있던 매매 실행 계획</h3>
             <div class="archive-diary-box" id="archive-plan-content" style="max-height: 110px;">기록이 없습니다.</div>
         </div>
 
@@ -471,6 +483,13 @@
             <span class="modal-title" id="pop-stock-title">종목 주가 추이 조회</span>
             <button class="modal-close" onclick="closeStockModal(null, true)">×</button>
         </div>
+        
+        <div class="modal-filter-zone">
+            <button class="filter-btn" id="f-btn-7" onclick="changeModalDuration(7)">최근 7일</button>
+            <button class="filter-btn" id="f-btn-15" onclick="changeModalDuration(15)">최근 15일</button>
+            <button class="filter-btn active" id="f-btn-all" onclick="changeModalDuration('all')">전체</button>
+        </div>
+
         <div class="chart-container" style="height: 180px; margin-bottom: 12px;"><canvas id="popStockLineChart"></canvas></div>
         <div style="max-height: 120px; overflow-y: auto; font-size:12px;">
             <table style="width:100%;">
@@ -495,6 +514,10 @@
     let popChartInstance = null; 
     let selectedDate = ""; 
     let archiveSelectedDate = ""; 
+
+    // ⏱️ 모달 내부 기간 컨트롤 전역 변수
+    let currentModalTargetStock = "";
+    let currentModalFilterRange = "all";
 
     const USD_KRW_EXCHANGE_RATE = 1380;
 
@@ -539,7 +562,6 @@
         selectedDate = db[db.length - 1].date; 
         archiveSelectedDate = selectedDate; 
 
-        // 💡 고정 원칙 핸들링
         const fixedPrinciples = document.getElementById('fixed-stock-principles');
         fixedPrinciples.value = localStorage.getItem('global_fixed_principles') || "";
         setTimeout(() => { autoResizeTextarea(fixedPrinciples); }, 50);
@@ -548,11 +570,12 @@
             autoResizeTextarea(e.target);
         };
 
-        // 📅 날짜별 독립 매매 계획 핸들링 조율
         const tipsTextarea = document.getElementById('custom-stock-tips');
+        tipsTextarea.value = localStorage.getItem('global_persistent_trading_plan') || "";
+        setTimeout(() => { autoResizeTextarea(tipsTextarea); }, 50);
         
         tipsTextarea.oninput = function(e) { 
-            localStorage.setItem(`trading_plan_${selectedDate}`, e.target.value); 
+            localStorage.setItem('global_persistent_trading_plan', e.target.value); 
             autoResizeTextarea(e.target);
         };
 
@@ -571,17 +594,37 @@
         const template = `[📝 매수/매도 실행 계획]\n- 🟢 매수할 종목:\n  (종목 / 수량 / 목표가)\n- 🔴 매도할 종목:\n  (종목 / 수량 / 목표가)\n- 🔍 특이사항 체크:`;
         
         tipsTextarea.value = (tipsTextarea.value.trim() ? tipsTextarea.value + "\n\n" : "") + template;
-        localStorage.setItem(`trading_plan_${selectedDate}`, tipsTextarea.value);
+        localStorage.setItem('global_persistent_trading_plan', tipsTextarea.value);
         autoResizeTextarea(tipsTextarea);
         tipsTextarea.focus();
     }
 
     function clearPlanText() {
-        if(confirm("해당 날짜의 매매 계획을 비우시겠습니까?")) {
+        if(confirm("매매 계획을 비우시겠습니까?")) {
             const tipsTextarea = document.getElementById('custom-stock-tips');
             tipsTextarea.value = "";
-            localStorage.setItem(`trading_plan_${selectedDate}`, "");
+            localStorage.setItem('global_persistent_trading_plan', "");
             autoResizeTextarea(tipsTextarea);
+        }
+    }
+
+    // 🗑️ 잘못된 원천 데이터셋 영구 추방 및 삭제 알고리즘
+    function deleteSelectedDateData() {
+        if (db.length <= 1) {
+            alert("최소 1개 이상의 데이터 세트가 유지되어야 하므로 삭제할 수 없습니다.");
+            return;
+        }
+        if (confirm(`⚠️ [경고] 선택된 날짜 [ ${selectedDate} ] 의 모든 자산 및 시황 스냅샷이 영구 삭제됩니다. 진행하시겠습니까?`)) {
+            db = db.filter(item => item.date !== selectedDate);
+            localStorage.setItem('portfolio_db', JSON.stringify(db));
+            
+            // 포인터를 남은 데이터 중 가장 최신 데이터로 변경
+            selectedDate = db[db.length - 1].date;
+            archiveSelectedDate = selectedDate;
+            
+            initDateSelector();
+            updateDashboard();
+            alert("지정된 날짜 데이터가 안전하게 완전히 삭제되었습니다.");
         }
     }
 
@@ -591,9 +634,7 @@
         document.getElementById(pageId).classList.add('active');
         btn.classList.add('active');
         
-        if(pageId === 'page1') {
-            updateDashboard();
-        }
+        if(pageId === 'page1') updateDashboard();
         if(pageId === 'page2') buildFeedbackAndExportZone();
         if(pageId === 'page3') buildCharts(db[db.findIndex(d => d.date === selectedDate)]);
         if(pageId === 'page5') { refreshArchiveDateDropdown(); loadArchiveData(archiveSelectedDate); }
@@ -660,11 +701,30 @@
         cell.appendChild(row1); return cell;
     }
 
-    function openStockTrendModal(stockName) {
-        document.getElementById('pop-stock-title').innerText = `📊 ${stockName} 주가 추이`;
-        const modal = document.getElementById('stock-modal-overlay'); modal.style.display = 'flex';
-        let trendData = [];
+    // ⏱️ 모달 내부 기간 선택 필터링 스위칭 컨트롤러
+    function changeModalDuration(range) {
+        currentModalFilterRange = range;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        if(range === 7) document.getElementById('f-btn-7').classList.add('active');
+        else if(range === 15) document.getElementById('f-btn-15').classList.add('active');
+        else document.getElementById('f-btn-all').classList.add('active');
         
+        renderStockTrendModalGraph();
+    }
+
+    function openStockTrendModal(stockName) {
+        currentModalTargetStock = stockName;
+        // 디폴트값은 '전체(all)' 상태로 초기화하여 오픈
+        changeModalDuration('all');
+    }
+
+    // 📊 주가 트렌드 모달 실제 가공 렌더링 파이프라인
+    function renderStockTrendModalGraph() {
+        const stockName = currentModalTargetStock;
+        document.getElementById('pop-stock-title').innerText = `📊 ${stockName} 주가 추이`;
+        document.getElementById('stock-modal-overlay').style.display = 'flex';
+        
+        let trendData = [];
         db.forEach((dayData, index) => {
             let price = 0; let profitOrChange = 0; let isWatch = false;
             const sFound = dayData.stocks.find(s => s.name === stockName);
@@ -683,6 +743,12 @@
             }
             if (price > 0) trendData.push({ date: dayData.date.split('-').slice(1).join('.'), price: price, rate: profitOrChange, isWatch: isWatch });
         });
+
+        // ⏱️ 지정된 기간에 따라 자르기 (최근 7일 / 최근 15일)
+        if (currentModalFilterRange !== 'all') {
+            const limit = parseInt(currentModalFilterRange);
+            trendData = trendData.slice(-limit);
+        }
         
         const tBody = document.getElementById('pop-stock-table-body'); tBody.innerHTML = "";
         [...trendData].reverse().forEach(t => {
@@ -712,12 +778,8 @@
         const todayData = db[targetIdx];
         const prevData = targetIdx > 0 ? db[targetIdx - 1] : null;
 
-        // 선택 날짜 라벨 동기화 및 텍스트 데이터 로드 분리화
-        document.getElementById('plan-date-label').innerText = todayData.date === db[db.length-1].date ? "오늘" : todayData.date;
         const tipsTextarea = document.getElementById('custom-stock-tips');
-        tipsTextarea.value = localStorage.getItem(`trading_plan_${selectedDate}`) || "";
         
-        // 고정 원칙창 및 계획창 컴포넌트 유동 확장 리사이징 동시 적용
         setTimeout(() => { 
             autoResizeTextarea(tipsTextarea); 
             autoResizeTextarea(document.getElementById('fixed-stock-principles'));
@@ -785,28 +847,54 @@
     }
 
     function buildFeedbackAndExportZone() {
-        const targetIdx = db.findIndex(d => d.date === selectedDate); const todayData = db[targetIdx]; const prevData = targetIdx > 0 ? db[targetIdx - 1] : null;
-        const feedbackBody = document.getElementById('feedback-sort-list'); feedbackBody.innerHTML = "";
-        if (!prevData) { feedbackBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-sub); padding:20px;">이전 데이터셋이 부족합니다.</td></tr>`; }
-        else {
-            let combinedList = []; todayData.stocks.forEach(s => { combinedList.push({ name: s.name, rate: s.profit_rate, isWatchlist: false }); });
+        const targetIdx = db.findIndex(d => d.date === selectedDate); 
+        const todayData = db[targetIdx]; 
+        const prevData = targetIdx > 0 ? db[targetIdx - 1] : null;
+        const feedbackBody = document.getElementById('feedback-sort-list'); 
+        feedbackBody.innerHTML = "";
+        
+        if (!prevData) { 
+            feedbackBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-sub); padding:20px;">이전 데이터셋이 부족합니다.</td></tr>`; 
+        } else {
+            let combinedList = []; 
+
+            todayData.stocks.forEach(s => {
+                let dailyRate = 0;
+                const prevStock = prevData.stocks.find(ps => ps.name === s.name);
+                if (prevStock && prevStock.current_price > 0) {
+                    dailyRate = ((s.current_price - prevStock.current_price) / prevStock.current_price) * 100;
+                } else {
+                    dailyRate = prevStock ? s.profit_rate - prevStock.profit_rate : 0;
+                }
+                combinedList.push({ name: s.name, rate: dailyRate, isWatchlist: false });
+            });
+
             if (todayData.market_watchlist) {
                 Object.keys(todayData.market_watchlist).forEach(key => {
                     if (key !== "코스피" && key !== "나스닥") {
-                        let currentPrice = todayData.market_watchlist[key]; if (currentPrice < 2000) currentPrice = Math.round(currentPrice * USD_KRW_EXCHANGE_RATE);
-                        let prevPrice = prevData.market_watchlist[key]; if (prevPrice && prevPrice < 2000) prevPrice = Math.round(prevPrice * USD_KRW_EXCHANGE_RATE);
-                        combinedList.push({ name: key, rate: prevPrice ? ((currentPrice - prevPrice) / prevPrice) * 100 : 0, isWatchlist: true });
+                        let currentPrice = todayData.market_watchlist[key]; 
+                        if (currentPrice < 2000) currentPrice = Math.round(currentPrice * USD_KRW_EXCHANGE_RATE);
+                        
+                        let prevPrice = prevData.market_watchlist ? prevData.market_watchlist[key] : null; 
+                        if (prevPrice && prevPrice < 2000) prevPrice = Math.round(prevPrice * USD_KRW_EXCHANGE_RATE);
+                        
+                        let dailyRate = (prevPrice && prevPrice > 0) ? ((currentPrice - prevPrice) / prevPrice) * 100 : 0;
+                        combinedList.push({ name: key, rate: dailyRate, isWatchlist: true });
                     }
                 });
             }
+
             combinedList.sort((a, b) => b.rate - a.rate);
+
             combinedList.forEach(item => {
-                const tr = document.createElement('tr'); const savedDecision = localStorage.getItem(`decision_${item.name}_${prevData.date}`) || "미지정";
+                const tr = document.createElement('tr'); 
+                const savedDecision = localStorage.getItem(`decision_${item.name}_${prevData.date}`) || "미지정";
                 tr.innerHTML = `<td><strong>${item.name}</strong>${item.isWatchlist ? '<span class="badge-view badge-watchlist">관심</span>' : ''}</td><td class="profit-cell ${item.rate >= 0 ? 'val-up':'val-down'}">${item.rate >= 0 ? '+':''}${item.rate.toFixed(1)}%</td><td style="text-align: right;"><span class="badge-view badge-${savedDecision}">${savedDecision === 'BUY'?'매수':savedDecision==='SELL'?'매도':savedDecision==='HOLD'?'보류':'의견없음'}</span></td>`;
                 feedbackBody.appendChild(tr);
             });
         }
-        const exportPack = { "evaluation_profile": "Trading Portfolio Assessment", "extracted_date": selectedDate, "core_principles": localStorage.getItem('global_fixed_principles') || "미입력", "daily_trading_plan": localStorage.getItem(`trading_plan_${selectedDate}`) || "미입력", "portfolio_summary": { "total_net_asset": todayData.total_asset, "invested_principal": todayData.principal, "cumulative_profit_rate": todayData.total_profit_rate, "market_log": localStorage.getItem(`market_view_${todayData.date}`) || "미입력" }, "individual_asset_records": todayData.stocks.map(s => { return { "stock_name": s.name, "quantity": s.count, "closing_price": s.current_price, "profit_percentage": s.profit_rate, "user_decision_today": localStorage.getItem(`decision_${s.name}_${todayData.date}`) || "NONE" }; }), "market_indices_snapshot": todayData.market_watchlist || {} };
+        
+        const exportPack = { "evaluation_profile": "Trading Portfolio Assessment", "extracted_date": selectedDate, "core_principles": localStorage.getItem('global_fixed_principles') || "미입력", "trading_plan_snapshot": localStorage.getItem('global_persistent_trading_plan') || "미입력", "portfolio_summary": { "total_net_asset": todayData.total_asset, "invested_principal": todayData.principal, "cumulative_profit_rate": todayData.total_profit_rate, "market_log": localStorage.getItem(`market_view_${todayData.date}`) || "미입력" }, "individual_asset_records": todayData.stocks.map(s => { return { "stock_name": s.name, "quantity": s.count, "closing_price": s.current_price, "profit_percentage": s.profit_rate, "user_decision_today": localStorage.getItem(`decision_${s.name}_${todayData.date}`) || "NONE" }; }), "market_indices_snapshot": todayData.market_watchlist || {} };
         document.getElementById('gemini-export-area').value = JSON.stringify(exportPack, null, 2);
     }
 
@@ -883,8 +971,7 @@
         document.getElementById('archive-total-asset').innerText = targetData.total_asset.toLocaleString() + "원";
         document.getElementById('archive-sub-profit').innerText = `당시 누적 수익률: ${targetData.total_profit_rate >= 0 ? '+' : ''}${targetData.total_profit_rate}%`;
 
-        // 5페이지에 날짜별 독립 매매 계획 아카이브 데이터 주입 동기화
-        const historyPlanText = localStorage.getItem(`trading_plan_${dateStr}`) || "해당 날짜에 기록된 세부 매매 실행 계획이 없습니다.";
+        const historyPlanText = localStorage.getItem('global_persistent_trading_plan') || "기록된 실행 계획 서식이 없습니다.";
         document.getElementById('archive-plan-content').innerText = historyPlanText;
 
         const diaryText = localStorage.getItem(`market_view_${dateStr}`) || "해당 날짜에 작성된 관점 일지 노트가 없습니다.";
