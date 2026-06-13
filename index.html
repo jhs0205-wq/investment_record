@@ -268,6 +268,7 @@
             </div>
             <div class="date-selector-zone">
                 <select class="select-date" id="history-date-select" onchange="changeDisplayDate(this.value)"></select>
+                <!-- 🗑️ 잘못된 원본 날짜 데이터 즉시 파괴 버튼 추가 -->
                 <button class="opt-btn SELL" style="padding: 7px 10px; font-size:12px;" onclick="deleteSelectedDateData()">🗑️ 선택일 삭제</button>
             </div>
         </header>
@@ -290,7 +291,8 @@
 
         <div class="card" style="border-color: var(--color-accent);">
             <h3>📥 Gem 추출 데이터 복붙함</h3>
-            <textarea id="json-paste-box" style="height: 55px; font-family: monospace;" placeholder="Gem이 준 데이터를 여기에 붙여넣으세요."></textarea>
+            <!-- ✨ 브라우저 번역 및 오타 유발 방지 옵션 완벽 적용 -->
+            <textarea id="json-paste-box" style="height: 55px; font-family: monospace;" placeholder="Gem이 준 데이터를 여기에 붙여넣으세요." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" translate="no"></textarea>
             <button class="btn-apply" onclick="applyGemData()">데이터 즉시 적용 및 변환하기</button>
         </div>
 
@@ -477,6 +479,7 @@
 
 </div>
 
+<!-- 📊 트렌드 모달 윈도우 인프라 (기간 설정 버튼 필터링 아키텍처 추가) -->
 <div class="modal-overlay" id="stock-modal-overlay" onclick="closeStockModal(event)">
     <div class="modal-window">
         <div class="modal-header">
@@ -484,6 +487,7 @@
             <button class="modal-close" onclick="closeStockModal(null, true)">×</button>
         </div>
         
+        <!-- ⏱️ 기간 조절 버튼 바 탑재 -->
         <div class="modal-filter-zone">
             <button class="filter-btn" id="f-btn-7" onclick="changeModalDuration(7)">최근 7일</button>
             <button class="filter-btn" id="f-btn-15" onclick="changeModalDuration(15)">최근 15일</button>
@@ -608,7 +612,7 @@
         }
     }
 
-    // 🗑️ 잘못된 원천 데이터셋 영구 추방 및 삭제 알고리즘
+    // 🗑️ 잘못된 원본 날짜 데이터 즉시 파괴 알고리즘
     function deleteSelectedDateData() {
         if (db.length <= 1) {
             alert("최소 1개 이상의 데이터 세트가 유지되어야 하므로 삭제할 수 없습니다.");
@@ -971,6 +975,7 @@
         document.getElementById('archive-total-asset').innerText = targetData.total_asset.toLocaleString() + "원";
         document.getElementById('archive-sub-profit').innerText = `당시 누적 수익률: ${targetData.total_profit_rate >= 0 ? '+' : ''}${targetData.total_profit_rate}%`;
 
+        // 영구 고정형 계획 데이터 스냅샷 표기
         const historyPlanText = localStorage.getItem('global_persistent_trading_plan') || "기록된 실행 계획 서식이 없습니다.";
         document.getElementById('archive-plan-content').innerText = historyPlanText;
 
